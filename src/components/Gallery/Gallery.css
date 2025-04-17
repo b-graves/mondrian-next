@@ -1,0 +1,117 @@
+@media all and (orientation:portrait) { 
+  .gallery {
+    position: absolute;
+    left: 2.5%;
+    top: 2.5vw;
+  }
+
+  .gallery__wall {
+    height: 90vh;
+  }
+
+  .gallery__hanging {
+    margin: 10px 50px;
+  }
+
+  .gallery__continue {
+    position: absolute;
+    bottom: 40px;
+    right: 10px;
+    cursor: e-resize;
+  }
+
+  .gallery__continue--wall {
+    position: absolute;
+    bottom: 40px;
+    left: 50px;
+    cursor: e-resize;
+  }
+}
+
+@media all and (orientation:landscape) {
+  .gallery {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .gallery__wall {
+    height: 100vh;
+  }
+  
+  .gallery__hanging {
+    margin: 10px 0px;
+  }
+
+  .gallery__continue {
+    position: fixed;
+    bottom: 40px;
+    left: calc(100vw);
+    transform: translate(-350px, 0);
+    cursor: e-resize;
+  }
+
+  .gallery__continue--wall {
+    position: absolute;
+    bottom: 40px;
+    left: calc(100vw);
+    transform: translate(-350px, 0);
+    cursor: e-resize;
+  }
+}
+
+.gallery__label {
+  width: 100%;
+  margin: 0 auto;
+  padding-top: 5px;
+}
+
+.gallery__leave {
+  position: fixed;
+  bottom: 0px;
+  left: 0px;
+  padding: 20px 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.gallery__hanging {
+  display: inline-block;
+}
+
+.gallery__wall {
+  overflow-x: scroll;
+  white-space: nowrap;
+  padding-left: 100px;
+  position: relative;
+}
+
+.hanging__label {
+  border: none;
+  text-align: center;
+  padding: 0px;
+  height: 1.5em;
+}
+
+.handing__artist {
+  font-size: 1.3em;
+}
+
+.handing__title {
+  font-style: italic;
+}
+
+.handing__year {
+  font-size: 0.8em;
+}
+
+.gallery__title {
+  font-size: 3em;
+  position: absolute;
+  float: left;
+  transform: rotate(-90deg);
+  top: 3em;
+  left: -60px;
+  font-weight: 600;
+} 

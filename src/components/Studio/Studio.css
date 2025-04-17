@@ -1,0 +1,170 @@
+.studio-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  position: absolute;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.studio {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.studio__title {
+  font-weight: 700;
+  font-size: 33px;
+  position: absolute;
+  left: 50%;
+  top: 20px;
+  transform: translate(-50%, 0);
+}
+
+.studio__peeking-mondrian-container {
+  position: absolute;
+  left: 0;
+  top: 15vh;
+  z-index: 0;
+}
+
+.studio__peeking-mondrian {
+  width: 250px;
+  transform: translate(-35%, 0);
+  opacity: 0.9;
+}
+
+.studio__canvas-options {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: absolute;
+  right: 10vh;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.studio__canvas-options--mobile {
+  display: none;
+}
+
+.studio__canvas-button {
+  width: 60px;
+  height: 60px;
+  margin: 15px;
+  border: 2px solid black;
+  cursor: pointer;
+  background-color: white;
+  border-radius: 0;
+}
+
+.studio__canvas-button--active {
+  background-color: #efefef;
+  border: 3px solid #111;
+}
+
+.studio__square-button {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+}
+
+.studio__landscape-button {
+  clip-path: polygon(0 15%, 100% 15%, 100% 85%, 0 85%);
+}
+
+.studio__portrait-button {
+  clip-path: polygon(15% 0, 85% 0, 85% 100%, 15% 100%);
+}
+
+.studio__label {
+  margin-top: 30px;
+  width: 80vw;
+  max-width: 400px;
+}
+
+.studio__leave {
+  position: absolute;
+  display: none;
+  right: 20px;
+  top: 45px;
+  font-size: 40px;
+  cursor: pointer;
+}
+
+.studio__leave--sideways {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.studio__clear {
+  position: absolute;
+  left: 20px;
+  top: 20px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.studio__save {
+  width: fit-content;
+  background-color: #f4b844;
+  padding: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 30px;
+  transition: all 0.2s;
+}
+
+.studio__save:hover {
+  background-color: #f4cb6c;
+}
+
+.icon {
+  margin-bottom: 4px;
+}
+
+.studio__input {
+  margin-bottom: 1em;
+}
+
+.name__hint {
+  font-size: 0.8em;
+  margin-bottom: 0.4em;
+}
+
+@media all and (orientation: portrait) {
+  .studio__canvas-options {
+    display: none;
+  }
+
+  .studio__canvas-options--mobile {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 30px;
+  }
+
+  .studio__canvas-button--mobile {
+    width: 45px;
+    height: 45px;
+    margin: 5px;
+  }
+
+  .studio__leave {
+    display: block;
+  }
+
+  .studio__leave--sideways {
+    display: none;
+  }
+
+  .studio__peeking-mondrian-container {
+    display: none;
+  }
+} 
