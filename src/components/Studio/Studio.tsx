@@ -1,40 +1,41 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import Canvas from '../Canvas/Canvas';
-import { Form, Button, ButtonGroup } from 'react-bootstrap';
-import { GoPin } from 'react-icons/go';
-import Painting from '../../types/Painting';
-import SavedPainting, { Details } from '../../types/SavedPainting';
-import { savePainting } from '../../services/s3Service';
-import './Studio.css';
+import React, { useState } from "react";
+import Canvas from "../Canvas/Canvas";
+import { Form, Button, ButtonGroup } from "react-bootstrap";
+import { GoPin } from "react-icons/go";
+import Painting from "../../types/Painting";
+import SavedPainting, { Details } from "../../types/SavedPainting";
+import { savePainting } from "../../services/s3Service";
+import "./Studio.css";
+import { useRouter } from "next/navigation";
 
 // Import the image using Next.js Image component
-import Image from 'next/image';
-import MondrianLeftPortrait from '../../assets/left-portrait.jpg';
+import Image from "next/image";
+import MondrianLeftPortrait from "../../assets/left-portrait.jpg";
 
 interface StudioProps {
-  setTab: (tab: number, refresh: boolean) => void;
   setUserPainting: (userPainting: SavedPainting) => void;
 }
 
-const Studio: React.FC<StudioProps> = ({ setTab, setUserPainting }) => {
+const Studio: React.FC<StudioProps> = ({ setUserPainting }) => {
+  const router = useRouter();
   const [painting, setPainting] = useState<Painting>({
     canvas: {
-      shape: "square"
+      shape: "square",
     },
     rootSection: {
       color: "white",
       isSplit: false,
-      id: new Date().getTime().toString()
-    }
+      id: new Date().getTime().toString(),
+    },
   });
 
   const [details, setDetails] = useState<Details>({
     artist: "",
     title: "",
     year: new Date().getFullYear(),
-    date: new Date().getTime()
+    date: new Date().getTime(),
   });
 
   const updatePainting = (updatedPainting: Painting) => {
@@ -44,19 +45,19 @@ const Studio: React.FC<StudioProps> = ({ setTab, setUserPainting }) => {
   const clear = () => {
     setPainting({
       canvas: {
-        shape: painting.canvas.shape
+        shape: painting.canvas.shape,
       },
       rootSection: {
         color: "white",
         isSplit: false,
-        id: new Date().getTime().toString()
-      }
+        id: new Date().getTime().toString(),
+      },
     });
 
     setDetails({
       ...details,
       title: "",
-      date: new Date().getTime()
+      date: new Date().getTime(),
     });
   };
 
@@ -67,22 +68,22 @@ const Studio: React.FC<StudioProps> = ({ setTab, setUserPainting }) => {
       details: {
         ...details,
         artist: details.artist || "Anonymous",
-        title: details.title || "Untitled"
-      }
+        title: details.title || "Untitled",
+      },
     };
 
     try {
       // Save to backend API
       await savePainting(paintingToSave);
-      
+
       // Update parent component
       setUserPainting(paintingToSave);
-      
+
       // Navigate to gallery
-      setTab(2, false);
+      router.push("/gallery");
     } catch (error) {
-      console.error('Error saving painting:', error);
-      alert('Failed to save your painting. Please try again.');
+      console.error("Error saving painting:", error);
+      alert("Failed to save your painting. Please try again.");
     }
   };
 
@@ -97,22 +98,27 @@ const Studio: React.FC<StudioProps> = ({ setTab, setUserPainting }) => {
   const updateCanvasShape = (shape: "square" | "landscape" | "portrait") => {
     setPainting({
       ...painting,
-      canvas: { ...painting.canvas, shape }
+      canvas: { ...painting.canvas, shape },
     });
   };
 
   return (
     <div>
-      <div className="studio__clear" onClick={clear}>New Canvas</div>
+      <div className="studio__clear" onClick={clear}>
+        New Canvas
+      </div>
       <div className="studio__title">Studio</div>
-      <div onClick={() => setTab(2, false)} className="studio__leave">
+      <div onClick={() => router.push("/gallery")} className="studio__leave">
         -&gt;
       </div>
-      <div onClick={() => setTab(2, false)} className="studio__leave--sideways">
+      <div
+        onClick={() => router.push("/gallery")}
+        className="studio__leave--sideways"
+      >
         Go to gallery
       </div>
       <div className="studio__peeking-mondrian-container">
-        <Image 
+        <Image
           className="studio__peeking-mondrian"
           src={MondrianLeftPortrait}
           alt="Mondrian Portrait"
@@ -124,15 +130,27 @@ const Studio: React.FC<StudioProps> = ({ setTab, setUserPainting }) => {
         <div>Canvas</div>
         <ButtonGroup vertical>
           <Button
-            className={`studio__canvas-button studio__square-button ${painting.canvas.shape === "square" ? "studio__canvas-button--active" : ""}`}
+            className={`studio__canvas-button studio__square-button ${
+              painting.canvas.shape === "square"
+                ? "studio__canvas-button--active"
+                : ""
+            }`}
             onClick={() => updateCanvasShape("square")}
           />
           <Button
-            className={`studio__canvas-button studio__landscape-button ${painting.canvas.shape === "landscape" ? "studio__canvas-button--active" : ""}`}
+            className={`studio__canvas-button studio__landscape-button ${
+              painting.canvas.shape === "landscape"
+                ? "studio__canvas-button--active"
+                : ""
+            }`}
             onClick={() => updateCanvasShape("landscape")}
           />
           <Button
-            className={`studio__canvas-button studio__portrait-button ${painting.canvas.shape === "portrait" ? "studio__canvas-button--active" : ""}`}
+            className={`studio__canvas-button studio__portrait-button ${
+              painting.canvas.shape === "portrait"
+                ? "studio__canvas-button--active"
+                : ""
+            }`}
             onClick={() => updateCanvasShape("portrait")}
           />
         </ButtonGroup>
@@ -160,7 +178,9 @@ const Studio: React.FC<StudioProps> = ({ setTab, setUserPainting }) => {
                   onChange={updateTitle}
                   autoComplete="off"
                 />
-                <div className="name__hint">(mondrian puns actively encouraged)</div>
+                <div className="name__hint">
+                  (mondrian puns actively encouraged)
+                </div>
               </Form.Group>
             </Form>
           </div>
@@ -171,15 +191,27 @@ const Studio: React.FC<StudioProps> = ({ setTab, setUserPainting }) => {
             <div>Canvas</div>
             <ButtonGroup>
               <Button
-                className={`studio__canvas-button--mobile studio__square-button ${painting.canvas.shape === "square" ? "studio__canvas-button--active" : ""}`}
+                className={`studio__canvas-button--mobile studio__square-button ${
+                  painting.canvas.shape === "square"
+                    ? "studio__canvas-button--active"
+                    : ""
+                }`}
                 onClick={() => updateCanvasShape("square")}
               />
               <Button
-                className={`studio__canvas-button--mobile studio__landscape-button ${painting.canvas.shape === "landscape" ? "studio__canvas-button--active" : ""}`}
+                className={`studio__canvas-button--mobile studio__landscape-button ${
+                  painting.canvas.shape === "landscape"
+                    ? "studio__canvas-button--active"
+                    : ""
+                }`}
                 onClick={() => updateCanvasShape("landscape")}
               />
               <Button
-                className={`studio__canvas-button--mobile studio__portrait-button ${painting.canvas.shape === "portrait" ? "studio__canvas-button--active" : ""}`}
+                className={`studio__canvas-button--mobile studio__portrait-button ${
+                  painting.canvas.shape === "portrait"
+                    ? "studio__canvas-button--active"
+                    : ""
+                }`}
                 onClick={() => updateCanvasShape("portrait")}
               />
             </ButtonGroup>
@@ -190,4 +222,4 @@ const Studio: React.FC<StudioProps> = ({ setTab, setUserPainting }) => {
   );
 };
 
-export default Studio; 
+export default Studio;
