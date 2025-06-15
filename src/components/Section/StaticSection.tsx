@@ -3,31 +3,38 @@ import { Split, Block } from "../../types/Painting";
 
 interface StaticSectionProps {
   section: Split | Block;
+  linePx: number;
 }
 
-const LINE_PX = 10;
-
-const StaticSection: React.FC<StaticSectionProps> = ({ section }) => {
+const StaticSection: React.FC<StaticSectionProps> = ({ section, linePx }) => {
   if (section.isSplit) {
     const split = section as Split;
     const isHorizontal = split.direction === "horizontal";
     const direction = isHorizontal ? "column" : "row";
     const pos = split.position || 50;
-    const halfLine = LINE_PX / 2;
+    // Degenerate splits: only render one side
+    if (pos <= 0) {
+      return <StaticSection section={split.sectionB} linePx={linePx} />;
+    }
+    if (pos >= 100) {
+      return <StaticSection section={split.sectionA} linePx={linePx} />;
+    }
+    const halfLine = linePx / 2;
     const blockAFlexBasis = `calc(${pos}% - ${halfLine}px)`;
     const blockBFlexBasis = `calc(${100 - pos}% - ${halfLine}px)`;
+    console.log("pos", pos);
     const lineStyle = isHorizontal
       ? {
           width: "100%",
-          height: LINE_PX,
+          height: linePx,
           background: "#1d1c25",
-          flex: `0 0 ${LINE_PX}px`,
+          flex: `0 0 ${linePx}px`,
         }
       : {
           height: "100%",
-          width: LINE_PX,
+          width: linePx,
           background: "#1d1c25",
-          flex: `0 0 ${LINE_PX}px`,
+          flex: `0 0 ${linePx}px`,
         };
     return (
       <div
@@ -41,13 +48,13 @@ const StaticSection: React.FC<StaticSectionProps> = ({ section }) => {
         <div
           style={{ flex: `0 0 ${blockAFlexBasis}`, minWidth: 0, minHeight: 0 }}
         >
-          <StaticSection section={split.sectionA} />
+          <StaticSection section={split.sectionA} linePx={linePx} />
         </div>
         <div style={lineStyle} />
         <div
           style={{ flex: `0 0 ${blockBFlexBasis}`, minWidth: 0, minHeight: 0 }}
         >
-          <StaticSection section={split.sectionB} />
+          <StaticSection section={split.sectionB} linePx={linePx} />
         </div>
       </div>
     );

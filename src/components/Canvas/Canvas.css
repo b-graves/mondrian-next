@@ -11,14 +11,14 @@
   box-shadow: 0 4px 12px -6px black;
 }
 
-@media all and (orientation:portrait) { 
+@media all and (orientation: portrait) {
   .canvas__container {
     width: 95vw;
     height: 95vw;
   }
 }
 
-@media all and (orientation:landscape) {
+@media all and (orientation: landscape) {
   .canvas__container {
     width: 80vh;
     height: 80vh;
@@ -31,59 +31,59 @@
   }
 }
 
-@media all and (orientation:portrait) { 
+@media all and (orientation: portrait) {
   .canvas--square {
     width: 95vw;
     height: 95vw;
   }
 }
 
-@media all and (orientation:landscape) {
+@media all and (orientation: landscape) {
   .canvas--square {
     width: 80vh;
     height: 80vh;
   }
-  
+
   .canvas--square.canvas--gallery {
     width: 60vh;
     height: 60vh;
   }
 }
 
-@media all and (orientation:portrait) { 
+@media all and (orientation: portrait) {
   .canvas--portrait {
     width: 71.25vw;
     height: 95vw;
   }
 }
 
-@media all and (orientation:landscape) {
+@media all and (orientation: landscape) {
   .canvas--portrait {
     width: 60vh;
     height: 80vh;
   }
-  
+
   .canvas--portrait.canvas--gallery {
     width: 45vh;
     height: 60vh;
   }
 }
 
-@media all and (orientation:portrait) { 
+@media all and (orientation: portrait) {
   .canvas--landscape {
     width: 95vw;
     height: 71.25vw;
   }
 }
 
-@media all and (orientation:landscape) {
+@media all and (orientation: landscape) {
   .canvas--landscape {
     width: 80vh;
     height: 60vh;
   }
-  
+
   .canvas--landscape.canvas--gallery {
     width: 60vh;
     height: 45vh;
   }
-} 
+}
