@@ -1,21 +1,31 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 import { Split, Block } from "../../types/Painting";
 import SplitSection from "./SplitSection";
 import BlockSection from "./BlockSection";
 
 interface SectionProps {
   section: Split | Block;
-  updateSection?: (section: Split | Block) => void;
+  updateSection?: (section: Split | Block, id: string) => void;
+  static?: boolean;
+  linePx?: number;
 }
 
-const Section: React.FC<SectionProps> = ({ section, updateSection }) => {
+const Section: React.FC<SectionProps> = ({
+  section,
+  updateSection,
+  static: isStatic,
+  linePx,
+}) => {
   if (section.isSplit) {
-    return updateSection ? (
-      <SplitSection split={section as Split} updateSection={updateSection} />
-    ) : (
-      <SplitSection split={section as Split} />
+    return (
+      <SplitSection
+        split={section as Split}
+        updateSection={updateSection}
+        static={isStatic}
+        linePx={linePx}
+      />
     );
   } else {
     return updateSection ? (
@@ -26,4 +36,4 @@ const Section: React.FC<SectionProps> = ({ section, updateSection }) => {
   }
 };
 
-export default Section; 
+export default Section;

@@ -13,7 +13,6 @@
 }
 
 .resize-handle {
-  width: 14px;
   background: #000;
   position: relative;
   z-index: 10;
@@ -32,27 +31,20 @@
 }
 
 .split-horizontal .resize-handle {
-  cursor: col-resize;
-  margin: 0 -7px;
-}
-
-.split-horizontal .resize-handle::after {
-  width: 4px;
+  width: 8px;
   height: 100%;
+  cursor: col-resize;
+  margin: 0 -4px;
 }
 
 .split-vertical .resize-handle {
-  cursor: row-resize;
-  height: 14px;
-  margin: -7px 0;
-}
-
-.split-vertical .resize-handle::after {
   width: 100%;
-  height: 4px;
+  height: 8px;
+  cursor: row-resize;
+  margin: -4px 0;
 }
 
 /* Hover state for the resize handle */
 .resize-handle:hover::after {
   background: rgba(0, 0, 0, 0.7);
-} 
+}

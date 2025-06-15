@@ -3,24 +3,25 @@
 import React from "react";
 import SavedPainting from "../../types/SavedPainting";
 import Canvas from "../Canvas/Canvas";
+import "./PaintingCard.css";
 
-interface WallProps {
+interface PaintingCardProps {
   painting: SavedPainting;
 }
 
-const Wall: React.FC<WallProps> = ({ painting }) => {
+const PaintingCard: React.FC<PaintingCardProps> = ({ painting }) => {
   return (
-    <>
+    <div className="painting-card">
       <Canvas gallery={true} painting={painting.painting} />
-      <div>
+      <div className="painting-card__label">
         <div>{painting.details.artist}</div>
         <div>
           <em>{painting.details.title}</em>
         </div>
         <div>{painting.details.year}</div>
       </div>
-    </>
+    </div>
   );
 };
 
-export default Wall;
+export default PaintingCard;

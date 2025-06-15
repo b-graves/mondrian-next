@@ -1,40 +1,32 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import Canvas from '../Canvas/Canvas';
-import { Form, Button, ButtonGroup } from 'react-bootstrap';
-import { GoPin } from 'react-icons/go';
-import Painting from '../../types/Painting';
-import SavedPainting, { Details } from '../../types/SavedPainting';
-import { savePainting } from '../../services/s3Service';
-import './Studio.css';
-
-// Import the image using Next.js Image component
-import Image from 'next/image';
-import MondrianLeftPortrait from '../../assets/left-portrait.jpg';
+import React, { useState } from "react";
+import Canvas from "../Canvas/Canvas";
+import Painting from "../../types/Painting";
+import SavedPainting, { Details } from "../../types/SavedPainting";
+import { savePainting } from "../../services/s3Service";
 
 interface StudioProps {
-  setTab: (tab: number, refresh: boolean) => void;
   setUserPainting: (userPainting: SavedPainting) => void;
 }
 
-const Studio: React.FC<StudioProps> = ({ setTab, setUserPainting }) => {
+const Studio: React.FC<StudioProps> = ({ setUserPainting }) => {
   const [painting, setPainting] = useState<Painting>({
     canvas: {
-      shape: "square"
+      shape: "square",
     },
     rootSection: {
       color: "white",
       isSplit: false,
-      id: new Date().getTime().toString()
-    }
+      id: new Date().getTime().toString(),
+    },
   });
 
   const [details, setDetails] = useState<Details>({
     artist: "",
     title: "",
     year: new Date().getFullYear(),
-    date: new Date().getTime()
+    date: new Date().getTime(),
   });
 
   const updatePainting = (updatedPainting: Painting) => {
@@ -44,150 +36,154 @@ const Studio: React.FC<StudioProps> = ({ setTab, setUserPainting }) => {
   const clear = () => {
     setPainting({
       canvas: {
-        shape: painting.canvas.shape
+        shape: painting.canvas.shape,
       },
       rootSection: {
         color: "white",
         isSplit: false,
-        id: new Date().getTime().toString()
-      }
+        id: new Date().getTime().toString(),
+      },
     });
-
     setDetails({
       ...details,
       title: "",
-      date: new Date().getTime()
+      date: new Date().getTime(),
     });
   };
 
   const save = async () => {
-    // Create a copy of the current painting data
     const paintingToSave: SavedPainting = {
       painting,
       details: {
         ...details,
         artist: details.artist || "Anonymous",
-        title: details.title || "Untitled"
-      }
+        title: details.title || "Untitled",
+      },
     };
-
     try {
-      // Save to backend API
       await savePainting(paintingToSave);
-      
-      // Update parent component
       setUserPainting(paintingToSave);
-      
-      // Navigate to gallery
-      setTab(2, false);
     } catch (error) {
-      console.error('Error saving painting:', error);
-      alert('Failed to save your painting. Please try again.');
+      console.error("Error saving painting:", error);
+      alert("Failed to save your painting. Please try again.");
     }
   };
 
-  const updateArtist = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDetails({ ...details, artist: e.target.value });
-  };
-
-  const updateTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDetails({ ...details, title: e.target.value });
-  };
-
-  const updateCanvasShape = (shape: "square" | "landscape" | "portrait") => {
-    setPainting({
-      ...painting,
-      canvas: { ...painting.canvas, shape }
-    });
-  };
-
   return (
-    <div>
-      <div className="studio__clear" onClick={clear}>New Canvas</div>
-      <div className="studio__title">Studio</div>
-      <div onClick={() => setTab(2, false)} className="studio__leave">
-        -&gt;
+    <div style={{ maxWidth: 900, margin: "2rem auto", padding: 24 }}>
+      <div style={{ marginBottom: 24, display: "flex", gap: 8 }}>
+        <button
+          style={{
+            padding: "8px 16px",
+            background: painting.canvas.shape === "square" ? "#222" : "#eee",
+            color: painting.canvas.shape === "square" ? "#fff" : "#222",
+            border: "1px solid #ccc",
+            borderRadius: 4,
+            cursor: "pointer",
+          }}
+          onClick={() =>
+            setPainting({ ...painting, canvas: { shape: "square" } })
+          }
+        >
+          Square
+        </button>
+        <button
+          style={{
+            padding: "8px 16px",
+            background: painting.canvas.shape === "landscape" ? "#222" : "#eee",
+            color: painting.canvas.shape === "landscape" ? "#fff" : "#222",
+            border: "1px solid #ccc",
+            borderRadius: 4,
+            cursor: "pointer",
+          }}
+          onClick={() =>
+            setPainting({ ...painting, canvas: { shape: "landscape" } })
+          }
+        >
+          Landscape
+        </button>
+        <button
+          style={{
+            padding: "8px 16px",
+            background: painting.canvas.shape === "portrait" ? "#222" : "#eee",
+            color: painting.canvas.shape === "portrait" ? "#fff" : "#222",
+            border: "1px solid #ccc",
+            borderRadius: 4,
+            cursor: "pointer",
+          }}
+          onClick={() =>
+            setPainting({ ...painting, canvas: { shape: "portrait" } })
+          }
+        >
+          Portrait
+        </button>
+        <button
+          style={{
+            marginLeft: 16,
+            padding: "8px 16px",
+            background: "#eee",
+            color: "#222",
+            border: "1px solid #ccc",
+            borderRadius: 4,
+            cursor: "pointer",
+          }}
+          onClick={clear}
+        >
+          New Canvas
+        </button>
       </div>
-      <div onClick={() => setTab(2, false)} className="studio__leave--sideways">
-        Go to gallery
+      <div style={{ marginBottom: 24 }}>
+        <Canvas painting={painting} paint={updatePainting} />
       </div>
-      <div className="studio__peeking-mondrian-container">
-        <Image 
-          className="studio__peeking-mondrian"
-          src={MondrianLeftPortrait}
-          alt="Mondrian Portrait"
-          width={200}
-          height={300}
+      <form
+        style={{
+          maxWidth: 400,
+          margin: "0 auto",
+          display: "flex",
+          flexDirection: "column",
+          gap: 12,
+        }}
+        onSubmit={(e) => {
+          e.preventDefault();
+          save();
+        }}
+      >
+        <label style={{ fontWeight: 500 }}>Artist</label>
+        <input
+          type="text"
+          placeholder="Anonymous"
+          value={details.artist}
+          onChange={(e) => setDetails({ ...details, artist: e.target.value })}
+          autoComplete="off"
+          style={{ padding: 8, borderRadius: 4, border: "1px solid #ccc" }}
         />
-      </div>
-      <div className="studio__canvas-options">
-        <div>Canvas</div>
-        <ButtonGroup vertical>
-          <Button
-            className={`studio__canvas-button studio__square-button ${painting.canvas.shape === "square" ? "studio__canvas-button--active" : ""}`}
-            onClick={() => updateCanvasShape("square")}
-          />
-          <Button
-            className={`studio__canvas-button studio__landscape-button ${painting.canvas.shape === "landscape" ? "studio__canvas-button--active" : ""}`}
-            onClick={() => updateCanvasShape("landscape")}
-          />
-          <Button
-            className={`studio__canvas-button studio__portrait-button ${painting.canvas.shape === "portrait" ? "studio__canvas-button--active" : ""}`}
-            onClick={() => updateCanvasShape("portrait")}
-          />
-        </ButtonGroup>
-      </div>
-      <div className="studio-container">
-        <div className="studio">
-          <Canvas painting={painting} paint={updatePainting} />
-          <div className="studio__label">
-            <Form>
-              <Form.Group>
-                <div className="name__hint">Label your painting:</div>
-                <Form.Control
-                  className="studio__input studio__input--artist"
-                  type="text"
-                  placeholder="Anonymous"
-                  value={details.artist}
-                  onChange={updateArtist}
-                  autoComplete="off"
-                />
-                <Form.Control
-                  className="studio__input studio__input--title"
-                  type="text"
-                  placeholder="Untitled"
-                  value={details.title}
-                  onChange={updateTitle}
-                  autoComplete="off"
-                />
-                <div className="name__hint">(mondrian puns actively encouraged)</div>
-              </Form.Group>
-            </Form>
-          </div>
-          <div className="studio__save" onClick={save}>
-            <GoPin className="icon" /> Hang in the gallery
-          </div>
-          <div className="studio__canvas-options--mobile">
-            <div>Canvas</div>
-            <ButtonGroup>
-              <Button
-                className={`studio__canvas-button--mobile studio__square-button ${painting.canvas.shape === "square" ? "studio__canvas-button--active" : ""}`}
-                onClick={() => updateCanvasShape("square")}
-              />
-              <Button
-                className={`studio__canvas-button--mobile studio__landscape-button ${painting.canvas.shape === "landscape" ? "studio__canvas-button--active" : ""}`}
-                onClick={() => updateCanvasShape("landscape")}
-              />
-              <Button
-                className={`studio__canvas-button--mobile studio__portrait-button ${painting.canvas.shape === "portrait" ? "studio__canvas-button--active" : ""}`}
-                onClick={() => updateCanvasShape("portrait")}
-              />
-            </ButtonGroup>
-          </div>
-        </div>
-      </div>
+        <label style={{ fontWeight: 500 }}>Title</label>
+        <input
+          type="text"
+          placeholder="Untitled"
+          value={details.title}
+          onChange={(e) => setDetails({ ...details, title: e.target.value })}
+          autoComplete="off"
+          style={{ padding: 8, borderRadius: 4, border: "1px solid #ccc" }}
+        />
+        <button
+          type="submit"
+          style={{
+            marginTop: 20,
+            padding: "10px 0",
+            background: "#1aaf5d",
+            color: "#fff",
+            border: "none",
+            borderRadius: 4,
+            fontWeight: 600,
+            cursor: "pointer",
+          }}
+        >
+          Save to Gallery
+        </button>
+      </form>
     </div>
   );
 };
 
-export default Studio; 
+export default Studio;
