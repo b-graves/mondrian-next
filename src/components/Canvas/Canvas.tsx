@@ -3,7 +3,6 @@
 import React, { useRef, useLayoutEffect, useState } from "react";
 import Painting, { Split, Block } from "../../types/Painting";
 import Section from "../Section/Section";
-import StaticSection from "../Section/StaticSection";
 import "./Canvas.css";
 
 // Will create the CSS file separately
@@ -48,7 +47,11 @@ const Canvas: React.FC<CanvasProps> = ({ painting, paint, gallery }) => {
         }`}
       >
         {gallery ? (
-          <StaticSection section={painting.rootSection} linePx={linePx} />
+          <Section
+            section={painting.rootSection}
+            static={true}
+            linePx={linePx}
+          />
         ) : paint ? (
           <Section
             section={painting.rootSection}
