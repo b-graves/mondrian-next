@@ -7,7 +7,7 @@ import BlockSection from "./BlockSection";
 
 interface SectionProps {
   section: Split | Block;
-  updateSection?: (section: Split | Block) => void;
+  updateSection?: (section: Split | Block, id: string) => void;
   static?: boolean;
   linePx?: number;
 }

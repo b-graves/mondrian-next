@@ -7,7 +7,7 @@ import "./SplitSection.css";
 
 interface SplitSectionProps {
   split: Split;
-  updateSection?: (section: Split | Block) => void;
+  updateSection?: (section: Split | Block, id: string) => void;
   linePx?: number;
 }
 
@@ -71,7 +71,7 @@ const SplitSection: React.FC<SplitSectionProps> = ({
       const total = isHorizontal ? rect.width : rect.height;
       let newPercent = startPercent + (delta / total) * 100;
       newPercent = Math.max(10, Math.min(90, newPercent));
-      updateSection({ ...split, position: newPercent });
+      updateSection({ ...split, position: newPercent }, split.id);
     };
 
     const onUp = () => {

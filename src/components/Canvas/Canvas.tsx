@@ -14,6 +14,22 @@ interface CanvasProps {
 
 const LINE_RATIO = 0.0125; // 1.25% of width
 
+function updateSectionById(
+  section: Split | Block,
+  id: string,
+  newSection: Split | Block
+): Split | Block {
+  if (section.id === id) return newSection;
+  if (section.isSplit) {
+    return {
+      ...section,
+      sectionA: updateSectionById(section.sectionA, id, newSection),
+      sectionB: updateSectionById(section.sectionB, id, newSection),
+    };
+  }
+  return section;
+}
+
 const Canvas: React.FC<CanvasProps> = ({ painting, paint, gallery }) => {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [linePx, setLinePx] = useState<number>(8); // fallback default
@@ -55,9 +71,17 @@ const Canvas: React.FC<CanvasProps> = ({ painting, paint, gallery }) => {
         ) : paint ? (
           <Section
             section={painting.rootSection}
-            updateSection={(rootSection: Split | Block) =>
-              paint({ ...painting, rootSection })
+            updateSection={(updated, id) =>
+              paint({
+                ...painting,
+                rootSection: updateSectionById(
+                  painting.rootSection,
+                  id,
+                  updated
+                ),
+              })
             }
+            linePx={linePx}
           />
         ) : (
           <Section section={painting.rootSection} />

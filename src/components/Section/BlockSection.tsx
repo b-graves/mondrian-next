@@ -8,7 +8,7 @@ import "./Section.css";
 
 interface BlockSectionProps {
   block: Block;
-  updateSection?: (section: Split | Block) => void;
+  updateSection?: (section: Split | Block, id: string) => void;
 }
 
 const BlockSection: React.FC<BlockSectionProps> = ({
@@ -32,29 +32,32 @@ const BlockSection: React.FC<BlockSectionProps> = ({
   const createSplit = (direction: "vertical" | "horizontal") => {
     if (!updateSection) return;
 
-    updateSection({
-      direction,
-      position: 50,
-      id: new Date().getTime() + "SPLIT",
-      sectionA: {
-        color: block.color,
-        isSplit: false,
-        id: new Date().getTime() + "A",
+    updateSection(
+      {
+        direction,
+        position: 50,
+        id: new Date().getTime() + "SPLIT",
+        sectionA: {
+          color: block.color,
+          isSplit: false,
+          id: new Date().getTime() + "A",
+        },
+        sectionB: {
+          color: block.color,
+          isSplit: false,
+          id: new Date().getTime() + "B",
+        },
+        isSplit: true,
       },
-      sectionB: {
-        color: block.color,
-        isSplit: false,
-        id: new Date().getTime() + "B",
-      },
-      isSplit: true,
-    });
+      block.id
+    );
   };
 
   const changeColor = () => {
     if (!updateSection) return;
 
     const paintedBlock = { ...block, color: nextColor() };
-    updateSection(paintedBlock);
+    updateSection(paintedBlock, block.id);
   };
 
   // If there's no updateSection, just render the block without controls
