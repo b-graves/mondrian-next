@@ -4,9 +4,6 @@ import React, { useState } from "react";
 import { Split, Block } from "../../types/Painting";
 import { FaPaintBrush } from "react-icons/fa";
 import { RiLayoutColumnLine, RiLayoutRowLine } from "react-icons/ri";
-import { Popover, OverlayTrigger } from "react-bootstrap";
-
-// Import the CSS file from Section.css separately
 import "./Section.css";
 
 interface BlockSectionProps {
@@ -69,49 +66,53 @@ const BlockSection: React.FC<BlockSectionProps> = ({
     );
   }
 
-  // Generate controls
-  const controls = (
-    <div className="painting__controls">
-      <RiLayoutColumnLine
-        className={`painting__control painting__control--split painting__control--${block.color}`}
-        onClick={() => createSplit("vertical")}
-      />
-      <RiLayoutRowLine
-        className={`painting__control painting__control--split painting__control--${block.color}`}
-        onClick={() => createSplit("horizontal")}
-      />
-      <FaPaintBrush
-        className={`painting__control painting__control--paint painting__control--${block.color}`}
-        onClick={changeColor}
-      />
-    </div>
-  );
-
-  // Editable block with controls
-  const popover = (
-    <Popover id={`popover-${block.id}`} className={`popover--${block.color}`}>
-      <Popover.Body className={`popover--${block.color}`}>
-        {controls}
-      </Popover.Body>
-    </Popover>
-  );
-
+  // Editable block with controls (shown on hover/focus)
   return (
-    <OverlayTrigger
-      trigger={["hover", "focus"]}
-      placement="bottom"
-      overlay={popover}
-      show={isHovering}
+    <div
+      className={`painting__block painting__block--${block.color}`}
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+      tabIndex={0}
+      onFocus={() => setIsHovering(true)}
+      onBlur={() => setIsHovering(false)}
+      style={{ position: "relative", outline: "none" }}
     >
-      <div
-        className={`painting__block painting__block--${block.color}`}
-        onMouseEnter={() => setIsHovering(true)}
-        onMouseLeave={() => setIsHovering(false)}
-        onClick={() => setIsHovering(!isHovering)}
-      >
-        <div className="block__centre" id={`target--${block.id}`} />
-      </div>
-    </OverlayTrigger>
+      <div className="block__centre" id={`target--${block.id}`} />
+      {isHovering && (
+        <div
+          className="painting__controls"
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            zIndex: 2,
+          }}
+        >
+          <RiLayoutRowLine
+            className={`painting__control painting__control--split painting__control--${block.color}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              createSplit("horizontal");
+            }}
+          />
+          <RiLayoutColumnLine
+            className={`painting__control painting__control--split painting__control--${block.color}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              createSplit("vertical");
+            }}
+          />
+          <FaPaintBrush
+            className={`painting__control painting__control--paint painting__control--${block.color}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              changeColor();
+            }}
+          />
+        </div>
+      )}
+    </div>
   );
 };
 

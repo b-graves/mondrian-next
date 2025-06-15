@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import Canvas from "../Canvas/Canvas";
-import { Form, Button, ButtonGroup } from "react-bootstrap";
 import Painting from "../../types/Painting";
 import SavedPainting, { Details } from "../../types/SavedPainting";
 import { savePainting } from "../../services/s3Service";
@@ -72,75 +71,117 @@ const Studio: React.FC<StudioProps> = ({ setUserPainting }) => {
 
   return (
     <div style={{ maxWidth: 900, margin: "2rem auto", padding: 24 }}>
-      <div style={{ marginBottom: 24 }}>
-        <ButtonGroup>
-          <Button
-            variant={
-              painting.canvas.shape === "square" ? "primary" : "outline-primary"
-            }
-            onClick={() =>
-              setPainting({ ...painting, canvas: { shape: "square" } })
-            }
-          >
-            Square
-          </Button>
-          <Button
-            variant={
-              painting.canvas.shape === "landscape"
-                ? "primary"
-                : "outline-primary"
-            }
-            onClick={() =>
-              setPainting({ ...painting, canvas: { shape: "landscape" } })
-            }
-          >
-            Landscape
-          </Button>
-          <Button
-            variant={
-              painting.canvas.shape === "portrait"
-                ? "primary"
-                : "outline-primary"
-            }
-            onClick={() =>
-              setPainting({ ...painting, canvas: { shape: "portrait" } })
-            }
-          >
-            Portrait
-          </Button>
-        </ButtonGroup>
-        <Button variant="secondary" style={{ marginLeft: 16 }} onClick={clear}>
+      <div style={{ marginBottom: 24, display: "flex", gap: 8 }}>
+        <button
+          style={{
+            padding: "8px 16px",
+            background: painting.canvas.shape === "square" ? "#222" : "#eee",
+            color: painting.canvas.shape === "square" ? "#fff" : "#222",
+            border: "1px solid #ccc",
+            borderRadius: 4,
+            cursor: "pointer",
+          }}
+          onClick={() =>
+            setPainting({ ...painting, canvas: { shape: "square" } })
+          }
+        >
+          Square
+        </button>
+        <button
+          style={{
+            padding: "8px 16px",
+            background: painting.canvas.shape === "landscape" ? "#222" : "#eee",
+            color: painting.canvas.shape === "landscape" ? "#fff" : "#222",
+            border: "1px solid #ccc",
+            borderRadius: 4,
+            cursor: "pointer",
+          }}
+          onClick={() =>
+            setPainting({ ...painting, canvas: { shape: "landscape" } })
+          }
+        >
+          Landscape
+        </button>
+        <button
+          style={{
+            padding: "8px 16px",
+            background: painting.canvas.shape === "portrait" ? "#222" : "#eee",
+            color: painting.canvas.shape === "portrait" ? "#fff" : "#222",
+            border: "1px solid #ccc",
+            borderRadius: 4,
+            cursor: "pointer",
+          }}
+          onClick={() =>
+            setPainting({ ...painting, canvas: { shape: "portrait" } })
+          }
+        >
+          Portrait
+        </button>
+        <button
+          style={{
+            marginLeft: 16,
+            padding: "8px 16px",
+            background: "#eee",
+            color: "#222",
+            border: "1px solid #ccc",
+            borderRadius: 4,
+            cursor: "pointer",
+          }}
+          onClick={clear}
+        >
           New Canvas
-        </Button>
+        </button>
       </div>
       <div style={{ marginBottom: 24 }}>
         <Canvas painting={painting} paint={updatePainting} />
       </div>
-      <Form style={{ maxWidth: 400, margin: "0 auto" }}>
-        <Form.Group>
-          <Form.Label>Artist</Form.Label>
-          <Form.Control
-            type="text"
-            placeholder="Anonymous"
-            value={details.artist}
-            onChange={(e) => setDetails({ ...details, artist: e.target.value })}
-            autoComplete="off"
-          />
-        </Form.Group>
-        <Form.Group style={{ marginTop: 12 }}>
-          <Form.Label>Title</Form.Label>
-          <Form.Control
-            type="text"
-            placeholder="Untitled"
-            value={details.title}
-            onChange={(e) => setDetails({ ...details, title: e.target.value })}
-            autoComplete="off"
-          />
-        </Form.Group>
-        <Button style={{ marginTop: 20 }} onClick={save} variant="success">
+      <form
+        style={{
+          maxWidth: 400,
+          margin: "0 auto",
+          display: "flex",
+          flexDirection: "column",
+          gap: 12,
+        }}
+        onSubmit={(e) => {
+          e.preventDefault();
+          save();
+        }}
+      >
+        <label style={{ fontWeight: 500 }}>Artist</label>
+        <input
+          type="text"
+          placeholder="Anonymous"
+          value={details.artist}
+          onChange={(e) => setDetails({ ...details, artist: e.target.value })}
+          autoComplete="off"
+          style={{ padding: 8, borderRadius: 4, border: "1px solid #ccc" }}
+        />
+        <label style={{ fontWeight: 500 }}>Title</label>
+        <input
+          type="text"
+          placeholder="Untitled"
+          value={details.title}
+          onChange={(e) => setDetails({ ...details, title: e.target.value })}
+          autoComplete="off"
+          style={{ padding: 8, borderRadius: 4, border: "1px solid #ccc" }}
+        />
+        <button
+          type="submit"
+          style={{
+            marginTop: 20,
+            padding: "10px 0",
+            background: "#1aaf5d",
+            color: "#fff",
+            border: "none",
+            borderRadius: 4,
+            fontWeight: 600,
+            cursor: "pointer",
+          }}
+        >
           Save to Gallery
-        </Button>
-      </Form>
+        </button>
+      </form>
     </div>
   );
 };
