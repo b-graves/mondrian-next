@@ -19,7 +19,7 @@ const BUCKET_NAME = process.env.S3_BUCKET || "mondrian-riley-test";
 
 // Helper to fetch all objects from S3 (paginated)
 async function fetchAllObjects() {
-  let allObjects = [];
+  let allObjects: any[] = [];
   let continuationToken = undefined;
   do {
     const command = new ListObjectsV2Command({
@@ -35,12 +35,38 @@ async function fetchAllObjects() {
   return allObjects;
 }
 
+// Helper to fetch painting metadata from S3
+async function fetchPaintingMeta(key: string) {
+  const command = new GetObjectCommand({
+    Bucket: BUCKET_NAME,
+    Key: key,
+  });
+  const response = await s3Client.send(command);
+  if (response.Body) {
+    const bodyContents = await response.Body.transformToString();
+    try {
+      const parsed = JSON.parse(bodyContents);
+      return {
+        Key: key,
+        artist: parsed.details?.artist || "",
+        title: parsed.details?.title || "",
+        year: parsed.details?.year || "",
+        lastModified: parsed.details?.date || 0,
+      };
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
 // GET handler for listing objects or getting a specific object
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const key = searchParams.get("key");
   const page = parseInt(searchParams.get("page") || "1", 10);
   const pageSize = parseInt(searchParams.get("pageSize") || "10", 10);
+  const search = searchParams.get("search")?.toLowerCase() || "";
 
   try {
     // If key is provided, get a specific object
@@ -62,6 +88,39 @@ export async function GET(request: NextRequest) {
         { error: "No body in response" },
         { status: 404 }
       );
+    }
+    // If search is present, fetch all, filter, and paginate
+    else if (search) {
+      const allObjects = await fetchAllObjects();
+      // Sort by LastModified descending
+      allObjects.sort((a, b) => {
+        const dateA = a.LastModified ? new Date(a.LastModified) : new Date(0);
+        const dateB = b.LastModified ? new Date(b.LastModified) : new Date(0);
+        return dateB.getTime() - dateA.getTime();
+      });
+      // Fetch metadata for all objects
+      const metas = await Promise.all(
+        allObjects.map((obj) => (obj.Key ? fetchPaintingMeta(obj.Key) : null))
+      );
+      // Filter by search (all words must be present in artist or title)
+      const searchWords = search.split(/\s+/).filter(Boolean);
+      const filtered = metas.filter((meta) => {
+        if (!meta) return false;
+        const combined = (meta.artist + " " + meta.title).toLowerCase();
+        return searchWords.every((word) => combined.includes(word));
+      });
+      // Paginate
+      const start = (page - 1) * pageSize;
+      const end = start + pageSize;
+      const files = filtered.slice(start, end);
+      const hasMore = end < filtered.length;
+      return NextResponse.json({
+        files,
+        hasMore,
+        total: filtered.length,
+        page,
+        pageSize,
+      });
     }
     // Otherwise, fetch all objects, sort, and paginate
     else {

@@ -2,12 +2,13 @@ import SavedPainting from "../types/SavedPainting";
 import { S3Object } from "../types/S3Types";
 
 /**
- * Get paintings from S3 with global date-sorted pagination
+ * Get paintings from S3 with global date-sorted pagination and optional search
  */
 export async function getPaintings({
   page = 1,
   pageSize = 10,
-}: { page?: number; pageSize?: number } = {}): Promise<{
+  search = "",
+}: { page?: number; pageSize?: number; search?: string } = {}): Promise<{
   files: S3Object[];
   hasMore: boolean;
   total: number;
@@ -18,6 +19,7 @@ export async function getPaintings({
     const params = new URLSearchParams();
     params.append("page", page.toString());
     params.append("pageSize", pageSize.toString());
+    if (search) params.append("search", search);
     const url = `/api/s3?${params.toString()}`;
     const response = await fetch(url);
     if (!response.ok) {
