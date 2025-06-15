@@ -21,8 +21,6 @@ const StaticSection: React.FC<StaticSectionProps> = ({ section, linePx }) => {
     }
     const halfLine = linePx / 2;
     const blockAFlexBasis = `calc(${pos}% - ${halfLine}px)`;
-    const blockBFlexBasis = `calc(${100 - pos}% - ${halfLine}px)`;
-    console.log("pos", pos);
     const lineStyle = isHorizontal
       ? {
           width: "100%",
@@ -51,9 +49,7 @@ const StaticSection: React.FC<StaticSectionProps> = ({ section, linePx }) => {
           <StaticSection section={split.sectionA} linePx={linePx} />
         </div>
         <div style={lineStyle} />
-        <div
-          style={{ flex: `0 0 ${blockBFlexBasis}`, minWidth: 0, minHeight: 0 }}
-        >
+        <div style={{ flex: "1 1 0", minWidth: 0, minHeight: 0 }}>
           <StaticSection section={split.sectionB} linePx={linePx} />
         </div>
       </div>
