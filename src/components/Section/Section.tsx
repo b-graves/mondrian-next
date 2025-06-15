@@ -8,14 +8,12 @@ import BlockSection from "./BlockSection";
 interface SectionProps {
   section: Split | Block;
   updateSection?: (section: Split | Block, id: string) => void;
-  static?: boolean;
   linePx?: number;
 }
 
 const Section: React.FC<SectionProps> = ({
   section,
   updateSection,
-  static: isStatic,
   linePx,
 }) => {
   if (section.isSplit) {
@@ -23,7 +21,6 @@ const Section: React.FC<SectionProps> = ({
       <SplitSection
         split={section as Split}
         updateSection={updateSection}
-        static={isStatic}
         linePx={linePx}
       />
     );

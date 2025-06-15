@@ -7,7 +7,7 @@ import Link from "next/link";
 import styles from "../page.module.css";
 
 export default function StudioPage() {
-  const [userPaintings, setUserPaintings] = useState<SavedPainting[]>([]);
+  const [, setUserPaintings] = useState<SavedPainting[]>([]);
 
   const addUserPainting = (userPainting: SavedPainting) => {
     setUserPaintings((prev) => [userPainting, ...prev]);
