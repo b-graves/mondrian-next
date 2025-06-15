@@ -63,11 +63,7 @@ const Canvas: React.FC<CanvasProps> = ({ painting, paint, gallery }) => {
         }`}
       >
         {gallery ? (
-          <Section
-            section={painting.rootSection}
-            static={true}
-            linePx={linePx}
-          />
+          <Section section={painting.rootSection} linePx={linePx} />
         ) : paint ? (
           <Section
             section={painting.rootSection}
