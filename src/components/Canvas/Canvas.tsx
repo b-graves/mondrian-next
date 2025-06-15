@@ -1,9 +1,10 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 import Painting, { Split, Block } from "../../types/Painting";
 import Section from "../Section/Section";
-import './Canvas.css';
+import StaticSection from "../Section/StaticSection";
+import "./Canvas.css";
 
 // Will create the CSS file separately
 interface CanvasProps {
@@ -14,13 +15,26 @@ interface CanvasProps {
 
 const Canvas: React.FC<CanvasProps> = ({ painting, paint, gallery }) => {
   return (
-    <div className={gallery ? "canvas__container canvas__container--gallery" : "canvas__container"}>
-      <div className={`canvas canvas--${painting.canvas.shape} ${gallery ? 'canvas--gallery' : ''}`}>
-        {paint ? (
-          <Section 
-            section={painting.rootSection} 
-            updateSection={(rootSection: Split | Block) => 
-              paint({ ...painting, rootSection })} 
+    <div
+      className={
+        gallery
+          ? "canvas__container canvas__container--gallery"
+          : "canvas__container"
+      }
+    >
+      <div
+        className={`canvas canvas--${painting.canvas.shape} ${
+          gallery ? "canvas--gallery" : ""
+        }`}
+      >
+        {gallery ? (
+          <StaticSection section={painting.rootSection} />
+        ) : paint ? (
+          <Section
+            section={painting.rootSection}
+            updateSection={(rootSection: Split | Block) =>
+              paint({ ...painting, rootSection })
+            }
           />
         ) : (
           <Section section={painting.rootSection} />
@@ -30,4 +44,4 @@ const Canvas: React.FC<CanvasProps> = ({ painting, paint, gallery }) => {
   );
 };
 
-export default Canvas; 
+export default Canvas;

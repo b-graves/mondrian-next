@@ -1,8 +1,10 @@
 import {
   S3Client,
   ListObjectsV2Command,
+  ListObjectsV2CommandOutput,
   GetObjectCommand,
   PutObjectCommand,
+  _Object as S3Object,
 } from "@aws-sdk/client-s3";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -18,15 +20,15 @@ const s3Client = new S3Client({
 const BUCKET_NAME = process.env.S3_BUCKET || "mondrian-riley-test";
 
 // Helper to fetch all objects from S3 (paginated)
-async function fetchAllObjects() {
-  let allObjects: any[] = [];
-  let continuationToken = undefined;
+async function fetchAllObjects(): Promise<S3Object[]> {
+  let allObjects: S3Object[] = [];
+  let continuationToken: string | undefined = undefined;
   do {
     const command = new ListObjectsV2Command({
       Bucket: BUCKET_NAME,
       ContinuationToken: continuationToken,
     });
-    const response = await s3Client.send(command);
+    const response: ListObjectsV2CommandOutput = await s3Client.send(command);
     if (response.Contents) {
       allObjects = allObjects.concat(response.Contents);
     }
