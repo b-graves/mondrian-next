@@ -69,6 +69,17 @@ const BlockSection: React.FC<BlockSectionProps> = ({
     );
   }
 
+  const iconSize = 32;
+  const padding = 2;
+
+  const colorMap: Record<string, string> = {
+    white: "rgba(238, 240, 235, 0.7)",
+    yellow: "rgba(248, 203, 4, 0.7)",
+    red: "rgba(184, 32, 21, 0.7)",
+    blue: "rgba(54, 82, 183, 0.7)",
+    black: "rgba(29, 28, 37, 0.7)",
+  };
+
   // Editable block with controls (shown on hover/focus)
   return (
     <div
@@ -81,43 +92,49 @@ const BlockSection: React.FC<BlockSectionProps> = ({
       style={{ position: "relative", outline: "none" }}
     >
       <div className="block__centre" id={`target--${block.id}`} />
-      {isHovering && (
-        <div
-          className="painting__controls"
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            zIndex: 2,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
+      <div
+        className={`painting__controls ${
+          isHovering ? "painting__controls--visible" : ""
+        }`}
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          zIndex: 10,
+          background: colorMap[block.color],
+          padding: padding,
+          borderRadius: padding,
+          display: "flex",
+          gap: padding,
+          alignItems: "center",
+        }}
+      >
+        <RiLayoutRowLine
+          size={iconSize}
+          className={`painting__control painting__control--split painting__control--${block.color}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            createSplit("horizontal");
           }}
-        >
-          <RiLayoutRowLine
-            className={`painting__control painting__control--split painting__control--${block.color}`}
-            onClick={(e) => {
-              e.stopPropagation();
-              createSplit("horizontal");
-            }}
-          />
-          <RiLayoutColumnLine
-            className={`painting__control painting__control--split painting__control--${block.color}`}
-            onClick={(e) => {
-              e.stopPropagation();
-              createSplit("vertical");
-            }}
-          />
-          <FaPaintBrush
-            className={`painting__control painting__control--paint painting__control--${block.color}`}
-            onClick={(e) => {
-              e.stopPropagation();
-              changeColor();
-            }}
-          />
-        </div>
-      )}
+        />
+        <RiLayoutColumnLine
+          size={iconSize}
+          className={`painting__control painting__control--split painting__control--${block.color}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            createSplit("vertical");
+          }}
+        />
+        <FaPaintBrush
+          size={iconSize}
+          className={`painting__control painting__control--paint painting__control--${block.color}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            changeColor();
+          }}
+        />
+      </div>
     </div>
   );
 };
