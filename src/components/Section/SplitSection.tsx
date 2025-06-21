@@ -27,12 +27,9 @@ const SplitSection: React.FC<SplitSectionProps> = ({
   const isHorizontal = split.direction === "horizontal";
   const direction = isHorizontal ? "column" : "row";
   const pos = split.position ?? 50;
-  const halfLine = linePx / 2;
-  const blockAFlexBasis = `calc(${pos}% - ${halfLine}px)`;
 
   // Draggable area dimensions (wider/taller than the line for accessibility)
   const dragAreaSize = 20;
-  const dragAreaOffset = (dragAreaSize - linePx) / 2;
 
   const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
     if (!updateSection || !containerRef.current) return;
@@ -101,47 +98,64 @@ const SplitSection: React.FC<SplitSectionProps> = ({
     };
   }, [isDragging, isHorizontal, split, updateSection]);
 
-  const lineStyle = isHorizontal
-    ? {
-        width: "100%",
-        height: linePx,
-        background: "#1d1c25",
-        flex: `0 0 ${linePx}px`,
-        zIndex: 2,
-        cursor: "row-resize",
-      }
-    : {
-        width: linePx,
-        height: "100%",
-        background: "#1d1c25",
-        flex: `0 0 ${linePx}px`,
-        zIndex: 2,
-        cursor: "col-resize",
-      };
+  // Base styles
+  const lineStyle: React.CSSProperties = {
+    position: "absolute",
+    background: "#1d1c25",
+    zIndex: 1,
+  };
 
-  const overlayStyle = isHorizontal
-    ? {
-        position: "absolute" as const,
-        left: 0,
-        top: `-${dragAreaOffset}px`,
-        width: "100%",
-        height: dragAreaSize,
-        background:
-          isHovered || isDragging ? "rgba(29, 28, 37, 0.3)" : "transparent",
-        zIndex: 1,
-        cursor: "row-resize",
-      }
-    : {
-        position: "absolute" as const,
-        left: `-${dragAreaOffset}px`,
-        top: 0,
-        width: dragAreaSize,
-        height: "100%",
-        background:
-          isHovered || isDragging ? "rgba(29, 28, 37, 0.3)" : "transparent",
-        zIndex: 1,
-        cursor: "col-resize",
-      };
+  const draggableAreaStyle: React.CSSProperties = {
+    position: "absolute",
+    zIndex: 2,
+    cursor: isHorizontal ? "row-resize" : "col-resize",
+  };
+
+  // Apply orientation-specific styles
+  if (isHorizontal) {
+    const lineTop = `calc(${pos / 100} * (100% - ${linePx}px))`;
+    const draggableAreaTop = `calc((${pos / 100} * (100% - ${linePx}px)) - ${
+      (dragAreaSize - linePx) / 2
+    }px)`;
+
+    Object.assign(lineStyle, {
+      top: lineTop,
+      left: 0,
+      width: "100%",
+      height: `${linePx}px`,
+    });
+    Object.assign(draggableAreaStyle, {
+      top: draggableAreaTop,
+      left: 0,
+      width: "100%",
+      height: `${dragAreaSize}px`,
+    });
+  } else {
+    const lineLeft = `calc(${pos / 100} * (100% - ${linePx}px))`;
+    const draggableAreaLeft = `calc((${pos / 100} * (100% - ${linePx}px)) - ${
+      (dragAreaSize - linePx) / 2
+    }px)`;
+
+    Object.assign(lineStyle, {
+      left: lineLeft,
+      top: 0,
+      height: "100%",
+      width: `${linePx}px`,
+    });
+    Object.assign(draggableAreaStyle, {
+      left: draggableAreaLeft,
+      top: 0,
+      height: "100%",
+      width: `${dragAreaSize}px`,
+    });
+  }
+
+  const overlayStyle: React.CSSProperties = {
+    width: "100%",
+    height: "100%",
+    background:
+      isHovered || isDragging ? "rgba(29, 28, 37, 0.3)" : "transparent",
+  };
 
   return (
     <div
@@ -154,37 +168,33 @@ const SplitSection: React.FC<SplitSectionProps> = ({
         position: "relative",
       }}
     >
-      <div
-        style={{ flex: `0 0 ${blockAFlexBasis}`, minWidth: 0, minHeight: 0 }}
-      >
+      <div style={{ flexBasis: `${pos}%`, minWidth: 0, minHeight: 0 }}>
         <Section
           section={split.sectionA}
           updateSection={updateSection}
           linePx={linePx}
         />
       </div>
+      <div style={{ flex: "1 1 auto", minWidth: 0, minHeight: 0 }}>
+        <Section
+          section={split.sectionB}
+          updateSection={updateSection}
+          linePx={linePx}
+        />
+      </div>
+
+      {/* The visual line, positioned to be flush with the edges */}
+      <div style={lineStyle} />
+
+      {/* The invisible, larger draggable area that sits on top, centered on the line */}
       <div
-        style={{
-          position: "relative",
-          flex: `0 0 ${linePx}px`,
-          minWidth: 0,
-          minHeight: 0,
-          height: "100%",
-        }}
+        style={draggableAreaStyle}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         onMouseDown={updateSection ? handleDragStart : undefined}
         onTouchStart={updateSection ? handleDragStart : undefined}
       >
         <div style={overlayStyle} />
-        <div style={{ ...lineStyle, position: "absolute", top: 0, left: 0 }} />
-      </div>
-      <div style={{ flex: "1 1 0", minWidth: 0, minHeight: 0 }}>
-        <Section
-          section={split.sectionB}
-          updateSection={updateSection}
-          linePx={linePx}
-        />
       </div>
     </div>
   );
