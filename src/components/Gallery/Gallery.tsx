@@ -2,17 +2,17 @@
 
 import React from "react";
 import SavedPainting from "../../types/SavedPainting";
-import Wall from "./Wall";
+import Painting from "./Painting";
 
 interface GalleryProps {
-  paintings: SavedPainting[];
+  paintings: (SavedPainting & { key: string; etag?: string })[];
 }
 
 const Gallery: React.FC<GalleryProps> = ({ paintings }) => {
   return (
     <>
       {paintings.map((painting, idx) => (
-        <Wall key={idx} painting={painting} />
+        <Painting key={idx} painting={painting} />
       ))}
     </>
   );

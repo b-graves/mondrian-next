@@ -10,7 +10,9 @@ import styles from "../page.module.css";
 const PAGE_SIZE = 10;
 
 export default function GalleryPage() {
-  const [paintings, setPaintings] = useState<SavedPainting[]>([]);
+  const [paintings, setPaintings] = useState<
+    (SavedPainting & { key: string; etag?: string })[]
+  >([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -30,12 +32,12 @@ export default function GalleryPage() {
           pageSize: PAGE_SIZE,
           search: searchTerm,
         });
-        const loaded: SavedPainting[] = [];
+        const loaded: (SavedPainting & { key: string; etag?: string })[] = [];
         for (const file of data.files) {
           if (file.Key) {
             try {
               const painting = await getPainting(file.Key);
-              loaded.push(painting);
+              loaded.push({ ...painting, key: file.Key, etag: file.ETag });
             } catch (error) {
               console.error(`Error fetching painting ${file.Key}:`, error);
             }

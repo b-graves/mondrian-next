@@ -38,10 +38,12 @@ async function fetchAllObjects(): Promise<S3Object[]> {
 }
 
 // Helper to fetch painting metadata from S3
-async function fetchPaintingMeta(key: string) {
+async function fetchPaintingMeta(s3Object: S3Object) {
+  if (!s3Object.Key) return null;
+
   const command = new GetObjectCommand({
     Bucket: BUCKET_NAME,
-    Key: key,
+    Key: s3Object.Key,
   });
   const response = await s3Client.send(command);
   if (response.Body) {
@@ -49,7 +51,8 @@ async function fetchPaintingMeta(key: string) {
     try {
       const parsed = JSON.parse(bodyContents);
       return {
-        Key: key,
+        Key: s3Object.Key,
+        ETag: s3Object.ETag,
         artist: parsed.details?.artist || "",
         title: parsed.details?.title || "",
         year: parsed.details?.year || "",
@@ -102,7 +105,7 @@ export async function GET(request: NextRequest) {
       });
       // Fetch metadata for all objects
       const metas = await Promise.all(
-        allObjects.map((obj) => (obj.Key ? fetchPaintingMeta(obj.Key) : null))
+        allObjects.map((obj) => (obj.Key ? fetchPaintingMeta(obj) : null))
       );
       // Filter by search (all words must be present in artist or title)
       const searchWords = search.split(/\s+/).filter(Boolean);
