@@ -154,7 +154,9 @@ const SplitSection: React.FC<SplitSectionProps> = ({
     width: "100%",
     height: "100%",
     background:
-      isHovered || isDragging ? "rgba(29, 28, 37, 0.3)" : "transparent",
+      updateSection && (isHovered || isDragging)
+        ? "rgba(29, 28, 37, 0.3)"
+        : "transparent",
   };
 
   return (
@@ -187,15 +189,17 @@ const SplitSection: React.FC<SplitSectionProps> = ({
       <div style={lineStyle} />
 
       {/* The invisible, larger draggable area that sits on top, centered on the line */}
-      <div
-        style={draggableAreaStyle}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        onMouseDown={updateSection ? handleDragStart : undefined}
-        onTouchStart={updateSection ? handleDragStart : undefined}
-      >
-        <div style={overlayStyle} />
-      </div>
+      {updateSection && (
+        <div
+          style={draggableAreaStyle}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          onMouseDown={handleDragStart}
+          onTouchStart={handleDragStart}
+        >
+          <div style={overlayStyle} />
+        </div>
+      )}
     </div>
   );
 };
