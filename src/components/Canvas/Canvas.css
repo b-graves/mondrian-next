@@ -7,7 +7,7 @@
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  background-color: black;
+  background-color: pink;
   box-shadow: 0 4px 12px -6px black;
 }
 

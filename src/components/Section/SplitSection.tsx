@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useState } from "react";
 import { Split, Block } from "../../types/Painting";
 import Section from "./Section";
 import "./SplitSection.css";
@@ -16,81 +16,59 @@ const SplitSection: React.FC<SplitSectionProps> = ({
   updateSection,
   linePx = 8,
 }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [isHovered, setIsHovered] = useState(false);
   const isHorizontal = split.direction === "horizontal";
   const direction = isHorizontal ? "column" : "row";
   const pos = split.position || 50;
   const halfLine = linePx / 2;
   const blockAFlexBasis = `calc(${pos}% - ${halfLine}px)`;
+
+  // Draggable area dimensions (wider/taller than the line for accessibility)
+  const dragAreaSize = 20;
+  const dragAreaOffset = (dragAreaSize - linePx) / 2;
+
   const lineStyle = isHorizontal
     ? {
-        width: linePx,
-        height: "100%",
-        background: "#1d1c25",
-        flex: `0 0 ${linePx}px`,
-        cursor: updateSection ? "col-resize" : "default",
-        zIndex: 2,
-      }
-    : {
         width: "100%",
         height: linePx,
         background: "#1d1c25",
         flex: `0 0 ${linePx}px`,
-        cursor: updateSection ? "row-resize" : "default",
         zIndex: 2,
+        cursor: "row-resize",
+      }
+    : {
+        width: linePx,
+        height: "100%",
+        background: "#1d1c25",
+        flex: `0 0 ${linePx}px`,
+        zIndex: 2,
+        cursor: "col-resize",
       };
 
-  // Drag logic
-  const isDragging = useRef(false);
-
-  const onDragStart = (e: React.MouseEvent | React.TouchEvent) => {
-    if (!updateSection || !containerRef.current) return;
-    isDragging.current = true;
-    const container = containerRef.current;
-    const rect = container.getBoundingClientRect();
-    const startPos = isHorizontal
-      ? "touches" in e
-        ? e.touches[0].clientX
-        : e.clientX
-      : "touches" in e
-      ? e.touches[0].clientY
-      : e.clientY;
-    const startPercent = split.position;
-
-    const onMove = (moveEvent: MouseEvent | TouchEvent) => {
-      if (!isDragging.current) return;
-      let clientPos = 0;
-      if (moveEvent instanceof TouchEvent) {
-        clientPos = isHorizontal
-          ? moveEvent.touches[0].clientX
-          : moveEvent.touches[0].clientY;
-      } else {
-        clientPos = isHorizontal ? moveEvent.clientX : moveEvent.clientY;
+  const overlayStyle = isHorizontal
+    ? {
+        position: "absolute" as const,
+        left: 0,
+        top: `-${dragAreaOffset}px`,
+        width: "100%",
+        height: dragAreaSize,
+        background: isHovered ? "rgba(29, 28, 37, 0.3)" : "transparent",
+        zIndex: 1,
+        cursor: "row-resize",
       }
-      const delta = clientPos - startPos;
-      const total = isHorizontal ? rect.width : rect.height;
-      let newPercent = startPercent + (delta / total) * 100;
-      newPercent = Math.max(10, Math.min(90, newPercent));
-      updateSection({ ...split, position: newPercent }, split.id);
-    };
-
-    const onUp = () => {
-      isDragging.current = false;
-      window.removeEventListener("mousemove", onMove as EventListener);
-      window.removeEventListener("touchmove", onMove as EventListener);
-      window.removeEventListener("mouseup", onUp);
-      window.removeEventListener("touchend", onUp);
-    };
-
-    window.addEventListener("mousemove", onMove as EventListener);
-    window.addEventListener("touchmove", onMove as EventListener);
-    window.addEventListener("mouseup", onUp);
-    window.addEventListener("touchend", onUp);
-  };
+    : {
+        position: "absolute" as const,
+        left: `-${dragAreaOffset}px`,
+        top: 0,
+        width: dragAreaSize,
+        height: "100%",
+        background: isHovered ? "rgba(29, 28, 37, 0.3)" : "transparent",
+        zIndex: 1,
+        cursor: "col-resize",
+      };
 
   return (
     <div
-      ref={containerRef}
       style={{
         display: "flex",
         flexDirection: direction,
@@ -109,10 +87,19 @@ const SplitSection: React.FC<SplitSectionProps> = ({
         />
       </div>
       <div
-        style={{ ...lineStyle, minWidth: 0, minHeight: 0 }}
-        onMouseDown={updateSection ? onDragStart : undefined}
-        onTouchStart={updateSection ? onDragStart : undefined}
-      />
+        style={{
+          position: "relative",
+          flex: `0 0 ${linePx}px`,
+          minWidth: 0,
+          minHeight: 0,
+          height: "100%",
+        }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        <div style={overlayStyle} />
+        <div style={{ ...lineStyle, position: "absolute", top: 0, left: 0 }} />
+      </div>
       <div style={{ flex: "1 1 0", minWidth: 0, minHeight: 0 }}>
         <Section
           section={split.sectionB}
