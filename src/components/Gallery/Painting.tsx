@@ -21,9 +21,9 @@ const Painting: React.FC<PaintingProps> = ({ painting }) => {
       href={`/painting/${etag}`}
       style={{ textDecoration: "none", color: "inherit" }}
     >
-      <div style={{ cursor: "pointer" }}>
+      <div style={{ cursor: "pointer", marginBottom: "4rem" }}>
         <Canvas gallery={true} painting={painting.painting} />
-        <div>
+        <div style={{ textAlign: "center", marginTop: "0.5rem" }}>
           <div>{painting.details.artist}</div>
           <div>
             <em>{painting.details.title}</em>

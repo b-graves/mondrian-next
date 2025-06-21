@@ -102,7 +102,7 @@ export default function GalleryPage() {
       >
         <input
           type="text"
-          placeholder="Search by artist or title..."
+          placeholder="Search..."
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           disabled={loading}

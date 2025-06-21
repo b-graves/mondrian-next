@@ -2,14 +2,16 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import Canvas from "../../../components/Canvas/Canvas";
 import SavedPainting from "../../../types/SavedPainting";
+import Painting from "../../../components/Gallery/Painting";
 import Link from "next/link";
 import styles from "../../page.module.css";
 
 export default function PaintingPage() {
   const params = useParams();
-  const [painting, setPainting] = useState<SavedPainting | null>(null);
+  const [painting, setPainting] = useState<
+    (SavedPainting & { key: string; etag?: string }) | null
+  >(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,7 +27,12 @@ export default function PaintingPage() {
         }
 
         const data = await response.json();
-        setPainting(data);
+        // Add the key and etag for the Painting component
+        setPainting({
+          ...data,
+          key: `${params.uuid}.json`, // Construct the key from the UUID
+          etag: params.uuid as string, // Use the UUID as the etag
+        });
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "Failed to load painting"
@@ -61,22 +68,17 @@ export default function PaintingPage() {
 
   return (
     <main className={styles.main}>
-      <div style={{ marginBottom: "2rem" }}>
-        <h1>{painting.details.title}</h1>
-        <p>by {painting.details.artist}</p>
-        <p>{painting.details.year}</p>
-      </div>
-
       <div
         style={{
           width: "100%",
           maxWidth: "800px",
           margin: "0 auto",
-          aspectRatio: "1",
-          border: "1px solid #ccc",
         }}
       >
-        <Canvas painting={painting.painting} />
+        {/* Use the Painting component but override the Link to prevent navigation */}
+        <div style={{ pointerEvents: "none" }}>
+          <Painting painting={painting} />
+        </div>
       </div>
 
       <Link href="/gallery" className={styles.backButton}>

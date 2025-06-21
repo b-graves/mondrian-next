@@ -20,7 +20,14 @@ export async function getPaintings({
     params.append("page", page.toString());
     params.append("pageSize", pageSize.toString());
     if (search) params.append("search", search);
-    const url = `/api/s3?${params.toString()}`;
+
+    // Use absolute URL for server-side calls, relative for client-side
+    const baseUrl =
+      typeof window === "undefined"
+        ? process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+        : "";
+    const url = `${baseUrl}/api/s3?${params.toString()}`;
+
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error("Failed to fetch paintings");
@@ -37,7 +44,14 @@ export async function getPaintings({
  */
 export async function getPainting(key: string): Promise<SavedPainting> {
   try {
-    const response = await fetch(`/api/s3?key=${encodeURIComponent(key)}`);
+    // Use absolute URL for server-side calls, relative for client-side
+    const baseUrl =
+      typeof window === "undefined"
+        ? process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+        : "";
+    const url = `${baseUrl}/api/s3?key=${encodeURIComponent(key)}`;
+
+    const response = await fetch(url);
     if (!response.ok) {
       throw new Error("Failed to fetch painting");
     }
