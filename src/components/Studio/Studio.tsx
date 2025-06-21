@@ -1,10 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import Canvas from "../Canvas/Canvas";
 import Painting from "../../types/Painting";
 import SavedPainting, { Details } from "../../types/SavedPainting";
 import { savePainting } from "../../services/s3Service";
+import "./Studio.css";
 
 interface StudioProps {
   setUserPainting: (userPainting: SavedPainting) => void;
@@ -36,7 +38,7 @@ const Studio: React.FC<StudioProps> = ({ setUserPainting }) => {
   const clear = () => {
     setPainting({
       canvas: {
-        shape: painting.canvas.shape,
+        ...painting.canvas,
       },
       rootSection: {
         color: "white",
@@ -46,6 +48,7 @@ const Studio: React.FC<StudioProps> = ({ setUserPainting }) => {
     });
     setDetails({
       ...details,
+      artist: "",
       title: "",
       date: new Date().getTime(),
     });
@@ -63,6 +66,7 @@ const Studio: React.FC<StudioProps> = ({ setUserPainting }) => {
     try {
       await savePainting(paintingToSave);
       setUserPainting(paintingToSave);
+      alert("Painting saved to gallery!");
     } catch (error) {
       console.error("Error saving painting:", error);
       alert("Failed to save your painting. Please try again.");
@@ -70,118 +74,91 @@ const Studio: React.FC<StudioProps> = ({ setUserPainting }) => {
   };
 
   return (
-    <div style={{ maxWidth: 900, margin: "2rem auto", padding: 24 }}>
-      <div style={{ marginBottom: 24, display: "flex", gap: 8 }}>
-        <button
-          style={{
-            padding: "8px 16px",
-            background: painting.canvas.shape === "square" ? "#222" : "#eee",
-            color: painting.canvas.shape === "square" ? "#fff" : "#222",
-            border: "1px solid #ccc",
-            borderRadius: 4,
-            cursor: "pointer",
-          }}
-          onClick={() =>
-            setPainting({ ...painting, canvas: { shape: "square" } })
-          }
-        >
-          Square
-        </button>
-        <button
-          style={{
-            padding: "8px 16px",
-            background: painting.canvas.shape === "landscape" ? "#222" : "#eee",
-            color: painting.canvas.shape === "landscape" ? "#fff" : "#222",
-            border: "1px solid #ccc",
-            borderRadius: 4,
-            cursor: "pointer",
-          }}
-          onClick={() =>
-            setPainting({ ...painting, canvas: { shape: "landscape" } })
-          }
-        >
-          Landscape
-        </button>
-        <button
-          style={{
-            padding: "8px 16px",
-            background: painting.canvas.shape === "portrait" ? "#222" : "#eee",
-            color: painting.canvas.shape === "portrait" ? "#fff" : "#222",
-            border: "1px solid #ccc",
-            borderRadius: 4,
-            cursor: "pointer",
-          }}
-          onClick={() =>
-            setPainting({ ...painting, canvas: { shape: "portrait" } })
-          }
-        >
-          Portrait
-        </button>
-        <button
-          style={{
-            marginLeft: 16,
-            padding: "8px 16px",
-            background: "#eee",
-            color: "#222",
-            border: "1px solid #ccc",
-            borderRadius: 4,
-            cursor: "pointer",
-          }}
-          onClick={clear}
-        >
-          New Canvas
-        </button>
-      </div>
-      <div style={{ marginBottom: 24 }}>
-        <Canvas painting={painting} paint={updatePainting} />
-      </div>
-      <form
-        style={{
-          maxWidth: 400,
-          margin: "0 auto",
-          display: "flex",
-          flexDirection: "column",
-          gap: 12,
-        }}
-        onSubmit={(e) => {
-          e.preventDefault();
-          save();
-        }}
-      >
-        <label style={{ fontWeight: 500 }}>Artist</label>
-        <input
-          type="text"
-          placeholder="Anonymous"
-          value={details.artist}
-          onChange={(e) => setDetails({ ...details, artist: e.target.value })}
-          autoComplete="off"
-          style={{ padding: 8, borderRadius: 4, border: "1px solid #ccc" }}
-        />
-        <label style={{ fontWeight: 500 }}>Title</label>
-        <input
-          type="text"
-          placeholder="Untitled"
-          value={details.title}
-          onChange={(e) => setDetails({ ...details, title: e.target.value })}
-          autoComplete="off"
-          style={{ padding: 8, borderRadius: 4, border: "1px solid #ccc" }}
-        />
-        <button
-          type="submit"
-          style={{
-            marginTop: 20,
-            padding: "10px 0",
-            background: "#1aaf5d",
-            color: "#fff",
-            border: "none",
-            borderRadius: 4,
-            fontWeight: 600,
-            cursor: "pointer",
-          }}
-        >
-          Save to Gallery
-        </button>
-      </form>
+    <div className="studio-container-fullscreen">
+      <main className="studio-main-content">
+        <div className="studio-top-bar">
+          <div className="canvas-controls">
+            <span>Canvas</span>
+            <div className="shape-selectors">
+              <button
+                aria-label="Square Canvas"
+                className={`shape-button square ${
+                  painting.canvas.shape === "square" ? "active" : ""
+                }`}
+                onClick={() =>
+                  setPainting({ ...painting, canvas: { shape: "square" } })
+                }
+              />
+              <button
+                aria-label="Landscape Canvas"
+                className={`shape-button landscape ${
+                  painting.canvas.shape === "landscape" ? "active" : ""
+                }`}
+                onClick={() =>
+                  setPainting({ ...painting, canvas: { shape: "landscape" } })
+                }
+              />
+              <button
+                aria-label="Portrait Canvas"
+                className={`shape-button portrait ${
+                  painting.canvas.shape === "portrait" ? "active" : ""
+                }`}
+                onClick={() =>
+                  setPainting({ ...painting, canvas: { shape: "portrait" } })
+                }
+              />
+            </div>
+          </div>
+          <button onClick={clear} className="new-canvas-link">
+            New Canvas
+          </button>
+        </div>
+
+        <div className="studio-canvas-container">
+          <Canvas painting={painting} paint={updatePainting} />
+        </div>
+
+        <div className="studio-label-area">
+          <form
+            id="details-form"
+            className="details-form-main"
+            onSubmit={(e) => {
+              e.preventDefault();
+              save();
+            }}
+          >
+            <div className="input-group">
+              <input
+                type="text"
+                placeholder="Anonymous"
+                value={details.artist}
+                onChange={(e) =>
+                  setDetails({ ...details, artist: e.target.value })
+                }
+                autoComplete="off"
+              />
+            </div>
+            <div className="input-group">
+              <input
+                type="text"
+                placeholder="Untitled"
+                value={details.title}
+                onChange={(e) =>
+                  setDetails({ ...details, title: e.target.value })
+                }
+                autoComplete="off"
+              />
+            </div>
+            <button type="submit" className="save-button">
+              Hang in the gallery
+            </button>
+          </form>
+        </div>
+      </main>
+
+      <Link href="/gallery" className="go-to-gallery-link">
+        <span>Go to gallery ↑</span>
+      </Link>
     </div>
   );
 };

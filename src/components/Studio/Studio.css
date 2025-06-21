@@ -1,170 +1,164 @@
-.studio-container {
+.studio-container-fullscreen {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  position: relative;
+  font-family: var(--font-space-mono), monospace;
+  background-color: var(--background);
+  color: var(--foreground);
+  box-sizing: border-box;
+}
+
+.back-button-studio {
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+  background-color: #646464;
+  color: white;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  z-index: 10;
+  border-radius: 4px;
+}
+
+.go-to-gallery-link {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  transform: rotate(90deg);
+  transform-origin: top right;
+  text-decoration: none;
+  color: var(--foreground);
+  font-weight: 600;
+  z-index: 10;
+  white-space: nowrap;
+  padding: 0.5rem;
+}
+
+.studio-main-content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+.studio-top-bar {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
   width: 100%;
-  position: absolute;
-  height: 100vh;
-  overflow: hidden;
+  padding: 0.25rem 0.5rem;
+  border-bottom: 1px solid var(--foreground);
+  flex-shrink: 0;
+  margin-bottom: 1rem;
 }
 
-.studio {
+.canvas-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.shape-selectors {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.shape-button {
+  border: 1px solid var(--foreground);
+  cursor: pointer;
+  background-color: transparent;
+  padding: 0;
+}
+
+.shape-button.active {
+  background-color: #cccccc;
+}
+
+.shape-button.square {
+  width: 25px;
+  height: 25px;
+}
+
+.shape-button.landscape {
+  width: 35px;
+  height: 20px;
+}
+
+.shape-button.portrait {
+  width: 20px;
+  height: 35px;
+}
+
+.new-canvas-link {
+  background: transparent;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--foreground);
+  font-family: var(--font-space-mono), monospace;
+}
+
+.studio-canvas-container {
+  flex-grow: 1;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 0;
+  min-height: 0;
+}
+
+.studio-label-area {
+  flex-shrink: 0;
+  padding: 1rem;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.details-form-main {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.input-group {
+  position: relative;
+  display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.studio__title {
-  font-weight: 700;
-  font-size: 33px;
-  position: absolute;
-  left: 50%;
-  top: 20px;
-  transform: translate(-50%, 0);
+.details-form-main input {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--foreground);
+  padding: 0.5rem;
+  color: var(--foreground);
+  font-family: var(--font-space-mono), monospace;
+  width: 200px;
+  text-align: center;
+  font-size: 1rem;
 }
 
-.studio__peeking-mondrian-container {
-  position: absolute;
-  left: 0;
-  top: 15vh;
-  z-index: 0;
+.details-form-main input:focus {
+  outline: none;
+  border-bottom-color: #3652b7;
 }
 
-.studio__peeking-mondrian {
-  width: 250px;
-  transform: translate(-35%, 0);
-  opacity: 0.9;
-}
-
-.studio__canvas-options {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: absolute;
-  right: 10vh;
+.save-button {
+  border: none;
+  border-radius: 4px;
   font-weight: 600;
-  letter-spacing: 0.3px;
-}
-
-.studio__canvas-options--mobile {
-  display: none;
-}
-
-.studio__canvas-button {
-  width: 60px;
-  height: 60px;
-  margin: 15px;
-  border: 2px solid black;
+  font-size: 1rem;
   cursor: pointer;
-  background-color: white;
-  border-radius: 0;
+  font-family: var(--font-space-mono), monospace;
+  padding: 0.75rem 1.5rem;
+  margin-top: 1rem;
 }
-
-.studio__canvas-button--active {
-  background-color: #efefef;
-  border: 3px solid #111;
-}
-
-.studio__square-button {
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-}
-
-.studio__landscape-button {
-  clip-path: polygon(0 15%, 100% 15%, 100% 85%, 0 85%);
-}
-
-.studio__portrait-button {
-  clip-path: polygon(15% 0, 85% 0, 85% 100%, 15% 100%);
-}
-
-.studio__label {
-  margin-top: 30px;
-  width: 80vw;
-  max-width: 400px;
-}
-
-.studio__leave {
-  position: absolute;
-  display: none;
-  right: 20px;
-  top: 45px;
-  font-size: 40px;
-  cursor: pointer;
-}
-
-.studio__leave--sideways {
-  position: absolute;
-  right: 20px;
-  top: 20px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.studio__clear {
-  position: absolute;
-  left: 20px;
-  top: 20px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.studio__save {
-  width: fit-content;
-  background-color: #f4b844;
-  padding: 1em;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 30px;
-  transition: all 0.2s;
-}
-
-.studio__save:hover {
-  background-color: #f4cb6c;
-}
-
-.icon {
-  margin-bottom: 4px;
-}
-
-.studio__input {
-  margin-bottom: 1em;
-}
-
-.name__hint {
-  font-size: 0.8em;
-  margin-bottom: 0.4em;
-}
-
-@media all and (orientation: portrait) {
-  .studio__canvas-options {
-    display: none;
-  }
-
-  .studio__canvas-options--mobile {
-    display: flex;
-    width: 100%;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 30px;
-  }
-
-  .studio__canvas-button--mobile {
-    width: 45px;
-    height: 45px;
-    margin: 5px;
-  }
-
-  .studio__leave {
-    display: block;
-  }
-
-  .studio__leave--sideways {
-    display: none;
-  }
-
-  .studio__peeking-mondrian-container {
-    display: none;
-  }
-} 
