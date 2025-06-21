@@ -89,6 +89,8 @@
   background-color: #545b62;
 }
 
+/* This style is no longer used and is replaced by .studioLink in gallery/page.module.css */
+/*
 .backButton {
   position: fixed;
   top: 2rem;
@@ -102,6 +104,7 @@
 .backButton:hover {
   background-color: #545b62;
 }
+*/
 
 .note {
   font-size: 0.9rem;

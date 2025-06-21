@@ -1,0 +1,87 @@
+.galleryContainer {
+  position: relative;
+  min-height: 100vh;
+  font-family: var(--font-space-mono), monospace;
+  background-color: var(--background);
+  color: var(--foreground);
+  padding: 0 1rem;
+}
+
+.searchContainer {
+  position: fixed;
+  top: 2rem;
+  left: 2rem;
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+}
+
+.searchInput {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border-radius: 4px;
+  border: 1px solid var(--foreground);
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-space-mono), monospace;
+  width: 120px;
+}
+
+.searchButton {
+  padding: 0.5rem 1.2rem;
+  font-size: 1rem;
+  border-radius: 4px;
+  border: 1px solid var(--foreground);
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-space-mono), monospace;
+  cursor: pointer;
+}
+
+.studioLink {
+  position: fixed;
+  bottom: 2rem;
+  left: 2rem;
+  text-decoration: none;
+  color: var(--foreground);
+  font-weight: 600;
+  z-index: 10;
+  white-space: nowrap;
+  padding: 0.5rem;
+  font-family: var(--font-space-mono), monospace;
+  letter-spacing: 0.1em;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .galleryContainer {
+    padding: 0 0.5rem;
+  }
+
+  .searchContainer {
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 1rem 0.5rem;
+    background: var(--background);
+    border-bottom: 1px solid var(--foreground);
+  }
+
+  .searchInput {
+    width: auto;
+    flex-grow: 1;
+    font-size: 0.875rem;
+    padding: 0.25rem 0.5rem;
+  }
+
+  .searchButton {
+    font-size: 0.875rem;
+    padding: 0.25rem 0.75rem;
+  }
+  .studioLink {
+    font-size: 0.875rem;
+  }
+}

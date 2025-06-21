@@ -1,27 +1,19 @@
-import Link from "next/link";
-import styles from "./page.module.css";
+"use client";
+
+import { useState } from "react";
+import Studio from "../components/Studio/Studio";
+import SavedPainting from "../types/SavedPainting";
 
 export default function Home() {
+  const [, setUserPaintings] = useState<SavedPainting[]>([]);
+
+  const addUserPainting = (userPainting: SavedPainting) => {
+    setUserPaintings((prev) => [userPainting, ...prev]);
+  };
+
   return (
-    <main className={styles.main}>
-      <div className={styles.startContainer}>
-        <h1 className={styles.title}>Mondrian.fun</h1>
-        <p className={styles.subtitle}>
-          Create your own Mondrian-style artwork
-        </p>
-        <div className={styles.buttonContainer}>
-          <Link href="/studio" className={styles.startButton}>
-            Start Creating
-          </Link>
-          <Link href="/gallery" className={styles.galleryButton}>
-            View Gallery
-          </Link>
-        </div>
-        <p className={styles.note}>
-          This is the new version using Next.js with server-side S3 handling for
-          improved security.
-        </p>
-      </div>
-    </main>
+    <>
+      <Studio setUserPainting={addUserPainting} />
+    </>
   );
 }

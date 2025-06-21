@@ -5,7 +5,7 @@ import Gallery from "../../components/Gallery/Gallery";
 import SavedPainting from "../../types/SavedPainting";
 import { getPaintings, getPainting } from "../../services/s3Service";
 import Link from "next/link";
-import styles from "../page.module.css";
+import galleryStyles from "./page.module.css";
 
 const PAGE_SIZE = 10;
 
@@ -90,55 +90,49 @@ export default function GalleryPage() {
   };
 
   return (
-    <main className={styles.main}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          gap: 8,
-          margin: "2rem auto 1rem",
-          maxWidth: 400,
-        }}
-      >
+    <div className={galleryStyles.galleryContainer}>
+      <div className={galleryStyles.searchContainer}>
         <input
           type="text"
           placeholder="Search..."
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           disabled={loading}
-          style={{
-            flex: 1,
-            padding: "0.5rem 1rem",
-            fontSize: "1.1rem",
-            borderRadius: 4,
-            border: "1px solid #ccc",
-          }}
+          className={galleryStyles.searchInput}
         />
         <button
           onClick={handleSearch}
           disabled={loading}
-          style={{
-            padding: "0.5rem 1.2rem",
-            fontSize: "1.1rem",
-            borderRadius: 4,
-          }}
+          className={galleryStyles.searchButton}
         >
           Search
         </button>
       </div>
-      <Gallery paintings={paintings} />
-      {loading && <div>Loading...</div>}
-      {!loading && hasMore && (
-        <button
-          onClick={handleLoadMore}
-          style={{ margin: "2rem auto", display: "block" }}
-        >
-          Load More
-        </button>
-      )}
-      <Link href="/" className={styles.backButton}>
-        ← Back to home
+
+      <main
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          paddingTop: "8rem", // Pushes content below fixed search bar
+        }}
+      >
+        <Gallery paintings={paintings} />
+        {loading && <div>Loading...</div>}
+        {!loading && hasMore && (
+          <button
+            onClick={handleLoadMore}
+            style={{ margin: "2rem auto", display: "block" }}
+          >
+            Load More
+          </button>
+        )}
+      </main>
+
+      <Link href="/" className={galleryStyles.studioLink}>
+        ← Go to studio
       </Link>
-    </main>
+    </div>
   );
 }
