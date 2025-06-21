@@ -90,6 +90,9 @@ const BlockSection: React.FC<BlockSectionProps> = ({
             left: "50%",
             transform: "translate(-50%, -50%)",
             zIndex: 2,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
           }}
         >
           <RiLayoutRowLine

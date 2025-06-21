@@ -26,7 +26,7 @@ const SplitSection: React.FC<SplitSectionProps> = ({
   } | null>(null);
   const isHorizontal = split.direction === "horizontal";
   const direction = isHorizontal ? "column" : "row";
-  const pos = split.position || 50;
+  const pos = split.position ?? 50;
   const halfLine = linePx / 2;
   const blockAFlexBasis = `calc(${pos}% - ${halfLine}px)`;
 
@@ -35,10 +35,6 @@ const SplitSection: React.FC<SplitSectionProps> = ({
   const dragAreaOffset = (dragAreaSize - linePx) / 2;
 
   const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
-    console.log("🚀 Drag start triggered", {
-      updateSection: !!updateSection,
-      containerRef: !!containerRef.current,
-    });
     if (!updateSection || !containerRef.current) return;
 
     e.preventDefault();
@@ -52,19 +48,10 @@ const SplitSection: React.FC<SplitSectionProps> = ({
       : "touches" in e
       ? e.touches[0].clientX
       : e.clientX;
-    const startPercent = split.position || 50;
+    const startPercent = split.position ?? 50;
 
     dragInfoRef.current = { rect, startPos, startPercent };
-    console.log("📏 Initial values captured in ref:", {
-      isHorizontal,
-      startPos,
-      startPercent,
-      rect: { width: rect.width, height: rect.height },
-      splitId: split.id,
-    });
-
     setIsDragging(true);
-    console.log("✅ Drag state set to true");
   };
 
   useEffect(() => {
@@ -72,12 +59,8 @@ const SplitSection: React.FC<SplitSectionProps> = ({
       return;
     }
 
-    console.log("useEffect: isDragging is true, adding listeners");
-
     const handleMove = (moveEvent: MouseEvent | TouchEvent) => {
-      console.log("🔄 Drag move event fired");
       if (!dragInfoRef.current) {
-        console.log("❌ Drag move called but dragInfoRef is null");
         return;
       }
       const { rect, startPos, startPercent } = dragInfoRef.current;
@@ -94,15 +77,7 @@ const SplitSection: React.FC<SplitSectionProps> = ({
       const delta = clientPos - startPos;
       const total = isHorizontal ? rect.height : rect.width;
       let newPercent = startPercent + (delta / total) * 100;
-      newPercent = Math.max(10, Math.min(90, newPercent));
-
-      console.log("🔄 Drag move calculation:", {
-        clientPos,
-        delta,
-        total,
-        newPercent,
-        originalPercent: split.position,
-      });
+      newPercent = Math.max(0, Math.min(100, newPercent));
 
       if (updateSection) {
         updateSection({ ...split, position: newPercent }, split.id);
@@ -110,18 +85,15 @@ const SplitSection: React.FC<SplitSectionProps> = ({
     };
 
     const handleEnd = () => {
-      console.log("🏁 Drag end");
       setIsDragging(false);
     };
 
-    console.log("📝 Adding event listeners in useEffect");
     document.addEventListener("mousemove", handleMove);
     document.addEventListener("touchmove", handleMove);
     document.addEventListener("mouseup", handleEnd);
     document.addEventListener("touchend", handleEnd);
 
     return () => {
-      console.log("🧹 Cleaning up event listeners in useEffect");
       document.removeEventListener("mousemove", handleMove);
       document.removeEventListener("touchmove", handleMove);
       document.removeEventListener("mouseup", handleEnd);
