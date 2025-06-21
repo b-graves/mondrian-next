@@ -23,35 +23,18 @@ const Painting: React.FC<PaintingProps> = ({ painting }) => {
         textDecoration: "none",
         color: "inherit",
         display: "block",
+        marginBottom: "4rem",
       }}
     >
       <div
         style={{
-          height: "100vh",
-          width: "100vw",
-          border: "5px solid yellow",
-          boxSizing: "border-box",
           display: "flex",
           flexDirection: "column",
+          alignItems: "center",
         }}
       >
-        <div
-          style={{
-            flex: 1,
-            width: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "1rem",
-            minHeight: 0,
-            overflow: "hidden",
-            position: "relative",
-          }}
-        >
-          <Canvas gallery={true} painting={painting.painting} />
-        </div>
-
-        <div style={{ textAlign: "center", padding: "1rem", flexShrink: 0 }}>
+        <Canvas gallery={true} painting={painting.painting} />
+        <div style={{ textAlign: "center", marginTop: "1rem" }}>
           <div>{painting.details.artist}</div>
           <div>
             <em>{painting.details.title}</em>

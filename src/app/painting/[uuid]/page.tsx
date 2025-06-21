@@ -6,6 +6,7 @@ import SavedPainting from "../../../types/SavedPainting";
 import Painting from "../../../components/Gallery/Painting";
 import Link from "next/link";
 import styles from "../../page.module.css";
+import paintingStyles from "./page.module.css";
 
 export default function PaintingPage() {
   const params = useParams();
@@ -59,7 +60,7 @@ export default function PaintingPage() {
     return (
       <main className={styles.main}>
         <div>Error: {error || "Painting not found"}</div>
-        <Link href="/gallery" className={styles.backButton}>
+        <Link href="/gallery" className={paintingStyles.galleryLink}>
           ← Back to gallery
         </Link>
       </main>
@@ -81,7 +82,7 @@ export default function PaintingPage() {
         </div>
       </div>
 
-      <Link href="/gallery" className={styles.backButton}>
+      <Link href="/gallery" className={paintingStyles.galleryLink}>
         ← Back to gallery
       </Link>
     </main>

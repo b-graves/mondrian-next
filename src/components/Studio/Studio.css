@@ -2,8 +2,8 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
+  overflow: scroll;
   width: 100vw;
-  overflow: hidden;
   position: relative;
   font-family: var(--font-space-mono), monospace;
   background-color: var(--background);
@@ -41,7 +41,6 @@
 .studio-main-content {
   display: flex;
   flex-direction: column;
-  height: 100%;
   width: 100%;
 }
 
@@ -53,6 +52,7 @@
   padding: 0.25rem 0.5rem;
   border-bottom: 1px solid var(--foreground);
   flex-shrink: 0;
+  margin-bottom: 2rem;
 }
 
 .canvas-controls {
@@ -103,15 +103,10 @@
 }
 
 .studio-canvas-container {
-  flex: 1;
-  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.25rem;
-  min-height: 0;
-  overflow: hidden;
-  position: relative;
+  padding: 2rem 0;
 }
 
 .studio-label-area {
