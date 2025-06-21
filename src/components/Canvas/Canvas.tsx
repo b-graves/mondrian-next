@@ -50,39 +50,27 @@ const Canvas: React.FC<CanvasProps> = ({ painting, paint, gallery }) => {
 
   return (
     <div
-      className={
-        gallery
-          ? "canvas__container canvas__container--gallery"
-          : "canvas__container"
-      }
+      ref={canvasRef}
+      className={`canvas canvas--${painting.canvas.shape} ${
+        gallery ? "canvas--gallery" : ""
+      }`}
     >
-      <div
-        ref={canvasRef}
-        className={`canvas canvas--${painting.canvas.shape} ${
-          gallery ? "canvas--gallery" : ""
-        }`}
-      >
-        {gallery ? (
-          <Section section={painting.rootSection} linePx={linePx} />
-        ) : paint ? (
-          <Section
-            section={painting.rootSection}
-            updateSection={(updated, id) =>
-              paint({
-                ...painting,
-                rootSection: updateSectionById(
-                  painting.rootSection,
-                  id,
-                  updated
-                ),
-              })
-            }
-            linePx={linePx}
-          />
-        ) : (
-          <Section section={painting.rootSection} />
-        )}
-      </div>
+      {gallery ? (
+        <Section section={painting.rootSection} linePx={linePx} />
+      ) : paint ? (
+        <Section
+          section={painting.rootSection}
+          updateSection={(updated, id) =>
+            paint({
+              ...painting,
+              rootSection: updateSectionById(painting.rootSection, id, updated),
+            })
+          }
+          linePx={linePx}
+        />
+      ) : (
+        <Section section={painting.rootSection} />
+      )}
     </div>
   );
 };
