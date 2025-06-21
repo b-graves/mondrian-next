@@ -32,10 +32,10 @@ function updateSectionById(
 
 const Canvas: React.FC<CanvasProps> = ({ painting, paint, gallery }) => {
   const canvasRef = useRef<HTMLDivElement>(null);
-  const [linePx, setLinePx] = useState<number>(8); // fallback default
+  const [linePx, setLinePx] = useState<number>(0); // fallback default
 
   useLayoutEffect(() => {
-    if (gallery && canvasRef.current) {
+    if (canvasRef.current) {
       const measure = () => {
         const width = canvasRef.current?.offsetWidth || 0;
         console.log("width", width);
@@ -46,7 +46,7 @@ const Canvas: React.FC<CanvasProps> = ({ painting, paint, gallery }) => {
       ro.observe(canvasRef.current);
       return () => ro.disconnect();
     }
-  }, [gallery]);
+  }, []);
 
   return (
     <div
@@ -57,7 +57,7 @@ const Canvas: React.FC<CanvasProps> = ({ painting, paint, gallery }) => {
       }
     >
       <div
-        ref={gallery ? canvasRef : undefined}
+        ref={canvasRef}
         className={`canvas canvas--${painting.canvas.shape} ${
           gallery ? "canvas--gallery" : ""
         }`}

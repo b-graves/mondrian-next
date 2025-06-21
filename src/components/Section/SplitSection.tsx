@@ -29,7 +29,7 @@ const SplitSection: React.FC<SplitSectionProps> = ({
   const pos = split.position ?? 50;
 
   // Draggable area dimensions (wider/taller than the line for accessibility)
-  const dragAreaSize = 20;
+  const dragAreaSize = linePx * 3;
 
   const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
     if (!updateSection || !containerRef.current) return;
