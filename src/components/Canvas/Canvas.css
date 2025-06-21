@@ -1,18 +1,42 @@
-.canvas__container {
-  position: relative;
-}
+/*
+  Canvas Component Styles
+  This file provides the core styling for the <Canvas> component, ensuring
+  it scales correctly while maintaining a fixed aspect ratio. It is designed
+  to be container-agnostic.
+*/
 
 .canvas {
+  /* Positioning and Appearance */
   position: relative;
-  background-color: pink;
   box-shadow: 0 4px 12px -6px rgba(0, 0, 0, 0.2);
-  display: block;
-  object-fit: contain;
+  display: flex; /* Use flex to allow the inner <Section> to fill it */
+
+  /*
+    Core Sizing Logic:
+    This combination of properties effectively creates a 'contain' behavior.
+    It will scale to fill its container as much as possible
+    without ever distorting its shape or overflowing.
+  */
   max-width: 100%;
   max-height: 100%;
   width: 100%;
   height: 100%;
-  overflow: hidden;
+}
+
+/*
+  Aspect Ratio Variants:
+  These classes apply a specific aspect ratio to the canvas.
+*/
+.canvas--square {
+  aspect-ratio: 1 / 1;
+}
+
+.canvas--landscape {
+  aspect-ratio: 4 / 3;
+}
+
+.canvas--portrait {
+  aspect-ratio: 3 / 4;
 }
 
 /* Studio canvas sizing - responsive to container */
@@ -89,14 +113,14 @@
 }
 
 @media all and (orientation: portrait) {
-  .canvas--square {
+  .canvas--square:not(.canvas--gallery) {
     width: 95vw;
     height: 95vw;
   }
 }
 
 @media all and (orientation: landscape) {
-  .canvas--square {
+  .canvas--square:not(.canvas--gallery) {
     width: 80vh;
     height: 80vh;
   }
@@ -108,14 +132,14 @@
 }
 
 @media all and (orientation: portrait) {
-  .canvas--portrait {
+  .canvas--portrait:not(.canvas--gallery) {
     width: 71.25vw;
     height: 95vw;
   }
 }
 
 @media all and (orientation: landscape) {
-  .canvas--portrait {
+  .canvas--portrait:not(.canvas--gallery) {
     width: 60vh;
     height: 80vh;
   }
@@ -127,14 +151,14 @@
 }
 
 @media all and (orientation: portrait) {
-  .canvas--landscape {
+  .canvas--landscape:not(.canvas--gallery) {
     width: 95vw;
     height: 71.25vw;
   }
 }
 
 @media all and (orientation: landscape) {
-  .canvas--landscape {
+  .canvas--landscape:not(.canvas--gallery) {
     width: 80vh;
     height: 60vh;
   }

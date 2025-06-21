@@ -19,11 +19,39 @@ const Painting: React.FC<PaintingProps> = ({ painting }) => {
   return (
     <Link
       href={`/painting/${etag}`}
-      style={{ textDecoration: "none", color: "inherit" }}
+      style={{
+        textDecoration: "none",
+        color: "inherit",
+        display: "block",
+      }}
     >
-      <div style={{ cursor: "pointer", marginBottom: "4rem" }}>
-        <Canvas gallery={true} painting={painting.painting} />
-        <div style={{ textAlign: "center", marginTop: "0.5rem" }}>
+      <div
+        style={{
+          height: "100vh",
+          width: "100vw",
+          border: "5px solid yellow",
+          boxSizing: "border-box",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <div
+          style={{
+            flex: 1,
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "1rem",
+            minHeight: 0,
+            overflow: "hidden",
+            position: "relative",
+          }}
+        >
+          <Canvas gallery={true} painting={painting.painting} />
+        </div>
+
+        <div style={{ textAlign: "center", padding: "1rem", flexShrink: 0 }}>
           <div>{painting.details.artist}</div>
           <div>
             <em>{painting.details.title}</em>

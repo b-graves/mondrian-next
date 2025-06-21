@@ -49,12 +49,7 @@ const Canvas: React.FC<CanvasProps> = ({ painting, paint, gallery }) => {
   }, []);
 
   return (
-    <div
-      ref={canvasRef}
-      className={`canvas canvas--${painting.canvas.shape} ${
-        gallery ? "canvas--gallery" : ""
-      }`}
-    >
+    <div ref={canvasRef} className={`canvas canvas--${painting.canvas.shape}`}>
       {gallery ? (
         <Section section={painting.rootSection} linePx={linePx} />
       ) : paint ? (

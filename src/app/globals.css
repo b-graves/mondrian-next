@@ -18,8 +18,8 @@ body {
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(var(--background));
   font-family: var(--font-space-mono), monospace;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -50,3 +50,18 @@ a {
   background-color: #3652b7 !important;
   border-color: #3652b7 !important;
 }
+
+/* This class is no longer needed */
+/*
+.canvas-container {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+}
+*/
