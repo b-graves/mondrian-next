@@ -23,7 +23,9 @@ export default function GalleryPage() {
     []
   );
   const [preloading, setPreloading] = useState(false);
-  const [searchInput, setSearchInput] = useState("");
+  const [activeSearchTerm, setActiveSearchTerm] = useState("");
+
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const requestIdRef = useRef(0);
   const lastPreloadedPage = useRef(0);
 
@@ -61,16 +63,17 @@ export default function GalleryPage() {
   // Preload next page only when currentPage changes (user action)
   useEffect(() => {
     if (hasMore) {
-      preloadNextPage(currentPage + 1, "");
+      preloadNextPage(currentPage + 1, activeSearchTerm);
     }
-    // eslint-disable-next-line
-  }, [currentPage, hasMore]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, hasMore, activeSearchTerm]);
 
-  // Handler for Search button
   const handleSearch = () => {
+    const newSearchTerm = searchInputRef.current?.value.trim() ?? "";
+    setActiveSearchTerm(newSearchTerm);
     setNextPagePaintings([]);
     lastPreloadedPage.current = 0;
-    search(searchInput.trim());
+    search(newSearchTerm);
   };
 
   // Handler for Load More button - use preloaded data if available
@@ -80,7 +83,7 @@ export default function GalleryPage() {
         appendPaintings(nextPagePaintings);
         setNextPagePaintings([]);
       } else {
-        loadMore(currentPage + 1);
+        loadMore(currentPage + 1, activeSearchTerm);
       }
     }
   };
@@ -89,10 +92,10 @@ export default function GalleryPage() {
     <div className={galleryStyles.galleryContainer}>
       <div className={galleryStyles.searchContainer}>
         <input
+          ref={searchInputRef}
           type="text"
           placeholder="Search..."
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           disabled={loading}
           className={galleryStyles.searchInput}
         />
