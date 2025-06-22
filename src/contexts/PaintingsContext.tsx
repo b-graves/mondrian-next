@@ -4,7 +4,6 @@ import React, {
   createContext,
   useContext,
   useState,
-  useEffect,
   useCallback,
   useRef,
 } from "react";
@@ -85,12 +84,6 @@ export const PaintingsProvider: React.FC<{ children: React.ReactNode }> = ({
     setPaintings((prev) => [newPainting, ...prev]);
     setTotalCount((prev) => prev + 1);
   };
-
-  // Preload first batch when app starts
-  useEffect(() => {
-    loadMore(1, "");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const value: PaintingsContextType = {
     paintings,

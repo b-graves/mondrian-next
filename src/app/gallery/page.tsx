@@ -6,6 +6,7 @@ import { usePaintings } from "../../contexts/PaintingsContext";
 import SavedPainting from "../../types/SavedPainting";
 import Link from "next/link";
 import galleryStyles from "./page.module.css";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
 const PAGE_SIZE = 100; // Much larger page size since files are small
 
@@ -19,17 +20,33 @@ export default function GalleryPage() {
     search,
     appendPaintings,
   } = usePaintings();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const [nextPagePaintings, setNextPagePaintings] = useState<SavedPainting[]>(
     []
   );
   const [preloading, setPreloading] = useState(false);
-  const [activeSearchTerm, setActiveSearchTerm] = useState("");
-
   const searchInputRef = useRef<HTMLInputElement>(null);
   const requestIdRef = useRef(0);
   const lastPreloadedPage = useRef(0);
 
-  // Preload the next page only after a user action (initial load or Load More)
+  const activeSearchTerm = searchParams.get("search") || "";
+
+  useEffect(() => {
+    // On mount or when URL search param changes, trigger a search.
+    // This handles initial load, direct navigation, and back/forward.
+    const term = searchParams.get("search") || "";
+    if (searchInputRef.current) {
+      searchInputRef.current.value = term;
+    }
+    setNextPagePaintings([]);
+    lastPreloadedPage.current = 0;
+    search(term);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
   const preloadNextPage = useCallback(
     async (pageToPreload: number, searchTerm: string) => {
       if (preloading || !hasMore || lastPreloadedPage.current === pageToPreload)
@@ -43,7 +60,6 @@ export default function GalleryPage() {
           }`
         );
         const response = await data.json();
-
         if (thisRequestId === requestIdRef.current) {
           setNextPagePaintings(response.paintings);
           lastPreloadedPage.current = pageToPreload;
@@ -52,31 +68,36 @@ export default function GalleryPage() {
         if (thisRequestId === requestIdRef.current) {
           console.error("Error preloading paintings:", error);
         }
-      }
-      if (thisRequestId === requestIdRef.current) {
+      } finally {
         setPreloading(false);
       }
     },
     [preloading, hasMore]
   );
 
-  // Preload next page only when currentPage changes (user action)
   useEffect(() => {
     if (hasMore) {
       preloadNextPage(currentPage + 1, activeSearchTerm);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, hasMore, activeSearchTerm]);
+  }, [currentPage, hasMore, activeSearchTerm, preloadNextPage]);
 
   const handleSearch = () => {
     const newSearchTerm = searchInputRef.current?.value.trim() ?? "";
-    setActiveSearchTerm(newSearchTerm);
-    setNextPagePaintings([]);
-    lastPreloadedPage.current = 0;
-    search(newSearchTerm);
+    const params = new URLSearchParams(searchParams);
+    if (newSearchTerm) {
+      params.set("search", newSearchTerm);
+    } else {
+      params.delete("search");
+    }
+    router.push(`${pathname}?${params.toString()}`);
   };
 
-  // Handler for Load More button - use preloaded data if available
+  const handleClearSearch = () => {
+    const params = new URLSearchParams(searchParams);
+    params.delete("search");
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
   const handleLoadMore = () => {
     if (!loading && hasMore) {
       if (nextPagePaintings.length > 0) {
@@ -106,6 +127,15 @@ export default function GalleryPage() {
         >
           Search
         </button>
+        {activeSearchTerm && (
+          <button
+            onClick={handleClearSearch}
+            disabled={loading}
+            className={galleryStyles.searchButton}
+          >
+            Clear
+          </button>
+        )}
       </div>
 
       <main
@@ -117,9 +147,13 @@ export default function GalleryPage() {
           paddingTop: "8rem", // Pushes content below fixed search bar
         }}
       >
-        <Gallery paintings={paintings} />
-        {loading && <div>Loading...</div>}
-        {!loading && hasMore && (
+        {loading ? <div>Loading...</div> : <Gallery paintings={paintings} />}
+
+        {!loading && paintings.length === 0 && activeSearchTerm && (
+          <div>No results found for &quot;{activeSearchTerm}&quot;</div>
+        )}
+
+        {!loading && hasMore && paintings.length > 0 && (
           <button
             onClick={handleLoadMore}
             style={{ margin: "2rem auto", display: "block" }}

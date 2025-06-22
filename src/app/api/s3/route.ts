@@ -141,20 +141,14 @@ export async function GET(request: NextRequest) {
         return dateA.getTime() - dateB.getTime();
       });
 
-      // Fetch metadata for all objects to filter
-      const metas = await Promise.all(
-        allObjects.map((obj) => (obj.Key ? fetchPaintingMeta(obj) : null))
-      );
-
-      // Filter by search (all words must be present in artist or title)
+      // Filter by searching artist/title in the filename (S3 key)
       const searchWords = search.split(/\s+/).filter(Boolean);
-      const filteredIndices = metas
-        .map((meta, index) => {
-          if (!meta) return null;
-          const combined = (meta.artist + " " + meta.title).toLowerCase();
-          return searchWords.every((word) => combined.includes(word))
-            ? index
-            : null;
+      const filteredIndices = allObjects
+        .map((obj, index) => {
+          if (!obj.Key) return null;
+          const keyLower = obj.Key.toLowerCase();
+          const matches = searchWords.every((word) => keyLower.includes(word));
+          return matches ? index : null;
         })
         .filter((index): index is number => index !== null);
 
@@ -273,7 +267,13 @@ export async function POST(request: NextRequest) {
       number: nextNumber,
     };
 
-    const key = `${data.details.artist}${data.details.date}.json`;
+    const safeArtist = (data.details.artist || "Anonymous")
+      .replace(/[^a-zA-Z0-9\s-]/g, "")
+      .replace(/\s+/g, "-");
+    const safeTitle = (data.details.title || "Untitled")
+      .replace(/[^a-zA-Z0-9\s-]/g, "")
+      .replace(/\s+/g, "-");
+    const key = `${safeArtist}-${safeTitle}-${data.details.date}.json`;
 
     const command = new PutObjectCommand({
       Bucket: BUCKET_NAME,

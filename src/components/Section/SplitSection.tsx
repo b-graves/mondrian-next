@@ -168,6 +168,7 @@ const SplitSection: React.FC<SplitSectionProps> = ({
         width: "100%",
         height: "100%",
         position: "relative",
+        overflow: "hidden",
       }}
     >
       <div style={{ flexBasis: `${pos}%`, minWidth: 0, minHeight: 0 }}>
