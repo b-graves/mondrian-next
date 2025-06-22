@@ -2,78 +2,86 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import Gallery from "../../components/Gallery/Gallery";
+import { usePaintings } from "../../contexts/PaintingsContext";
 import SavedPainting from "../../types/SavedPainting";
-import { getPaintings } from "../../services/s3Service";
 import Link from "next/link";
 import galleryStyles from "./page.module.css";
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 100; // Much larger page size since files are small
 
 export default function GalleryPage() {
-  const [paintings, setPaintings] = useState<SavedPainting[]>([]);
-  const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  const [search, setSearch] = useState("");
+  const {
+    paintings,
+    loading,
+    hasMore,
+    currentPage,
+    loadMore,
+    search,
+    appendPaintings,
+  } = usePaintings();
+  const [nextPagePaintings, setNextPagePaintings] = useState<SavedPainting[]>(
+    []
+  );
+  const [preloading, setPreloading] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const requestIdRef = useRef(0);
+  const lastPreloadedPage = useRef(0);
 
-  // Fetch a page of paintings (with search)
-  const loadMore = useCallback(
-    async (pageToLoad = page, searchTerm = search) => {
-      if (loading || !hasMore) return;
-      setLoading(true);
+  // Preload the next page only after a user action (initial load or Load More)
+  const preloadNextPage = useCallback(
+    async (pageToPreload: number, searchTerm: string) => {
+      if (preloading || !hasMore || lastPreloadedPage.current === pageToPreload)
+        return;
+      setPreloading(true);
       const thisRequestId = ++requestIdRef.current;
       try {
-        const data = await getPaintings({
-          page: pageToLoad,
-          pageSize: PAGE_SIZE,
-          search: searchTerm,
-        });
+        const data = await fetch(
+          `/api/s3?page=${pageToPreload}&pageSize=${PAGE_SIZE}${
+            searchTerm ? `&search=${encodeURIComponent(searchTerm)}` : ""
+          }`
+        );
+        const response = await data.json();
 
         if (thisRequestId === requestIdRef.current) {
-          setPaintings((prev) =>
-            pageToLoad === 1 ? data.paintings : [...prev, ...data.paintings]
-          );
-          setHasMore(data.hasMore);
+          setNextPagePaintings(response.paintings);
+          lastPreloadedPage.current = pageToPreload;
         }
       } catch (error) {
         if (thisRequestId === requestIdRef.current) {
-          console.error("Error fetching paintings:", error);
+          console.error("Error preloading paintings:", error);
         }
       }
       if (thisRequestId === requestIdRef.current) {
-        setLoading(false);
+        setPreloading(false);
       }
     },
-    [loading, hasMore, page, search]
+    [preloading, hasMore]
   );
 
-  // Initial load (empty search)
+  // Preload next page only when currentPage changes (user action)
   useEffect(() => {
-    setPaintings([]);
-    setPage(1);
-    setHasMore(true);
-    requestIdRef.current++;
-    loadMore(1, "");
+    if (hasMore) {
+      preloadNextPage(currentPage + 1, "");
+    }
     // eslint-disable-next-line
-  }, []);
+  }, [currentPage, hasMore]);
 
   // Handler for Search button
   const handleSearch = () => {
-    setPaintings([]);
-    setPage(1);
-    setHasMore(true);
-    setSearch(searchInput.trim());
-    requestIdRef.current++;
-    loadMore(1, searchInput.trim());
+    setNextPagePaintings([]);
+    lastPreloadedPage.current = 0;
+    search(searchInput.trim());
   };
 
-  // Handler for Load More button
+  // Handler for Load More button - use preloaded data if available
   const handleLoadMore = () => {
     if (!loading && hasMore) {
-      setPage((prev) => prev + 1);
-      loadMore(page + 1, search);
+      if (nextPagePaintings.length > 0) {
+        appendPaintings(nextPagePaintings);
+        setNextPagePaintings([]);
+      } else {
+        loadMore(currentPage + 1);
+      }
     }
   };
 
@@ -113,7 +121,7 @@ export default function GalleryPage() {
             onClick={handleLoadMore}
             style={{ margin: "2rem auto", display: "block" }}
           >
-            Load More
+            Load More...
           </button>
         )}
       </main>

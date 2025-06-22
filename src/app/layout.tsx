@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Space_Mono } from "next/font/google";
 import "./globals.css";
+import { PaintingsProvider } from "../contexts/PaintingsContext";
 
 const spaceMono = Space_Mono({
   subsets: ["latin"],
@@ -29,7 +30,9 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
       </head>
-      <body className={spaceMono.className}>{children}</body>
+      <body className={spaceMono.className}>
+        <PaintingsProvider>{children}</PaintingsProvider>
+      </body>
     </html>
   );
 }
