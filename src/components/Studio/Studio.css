@@ -1,7 +1,6 @@
 .studio-container-fullscreen {
   display: flex;
   flex-direction: column;
-  height: 100vh;
   overflow: scroll;
   width: 100vw;
   position: relative;
