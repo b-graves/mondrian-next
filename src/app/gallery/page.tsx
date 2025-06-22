@@ -111,32 +111,34 @@ export default function GalleryPage() {
 
   return (
     <div className={galleryStyles.galleryContainer}>
-      <div className={galleryStyles.searchContainer}>
-        <input
-          ref={searchInputRef}
-          type="text"
-          placeholder="Search..."
-          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-          disabled={loading}
-          className={galleryStyles.searchInput}
-        />
-        <button
-          onClick={handleSearch}
-          disabled={loading}
-          className={galleryStyles.searchButton}
-        >
-          Search
-        </button>
-        {activeSearchTerm && (
+      {!loading && (
+        <div className={galleryStyles.searchContainer}>
+          <input
+            ref={searchInputRef}
+            type="text"
+            placeholder="Search..."
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+            disabled={loading}
+            className={galleryStyles.searchInput}
+          />
           <button
-            onClick={handleClearSearch}
+            onClick={handleSearch}
             disabled={loading}
             className={galleryStyles.searchButton}
           >
-            Clear
+            Search
           </button>
-        )}
-      </div>
+          {activeSearchTerm && (
+            <button
+              onClick={handleClearSearch}
+              disabled={loading}
+              className={galleryStyles.searchButton}
+            >
+              Clear
+            </button>
+          )}
+        </div>
+      )}
 
       <main
         style={{
