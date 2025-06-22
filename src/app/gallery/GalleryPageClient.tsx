@@ -147,7 +147,11 @@ export default function GalleryPageClient() {
           paddingTop: "8rem",
         }}
       >
-        {loading ? <div>Loading...</div> : <Gallery paintings={paintings} />}
+        {loading && paintings.length === 0 ? (
+          <div style={{ padding: 32 }}>Loading...</div>
+        ) : (
+          <Gallery paintings={paintings} />
+        )}
 
         {!loading && paintings.length === 0 && activeSearchTerm && (
           <div>No results found for &quot;{activeSearchTerm}&quot;</div>

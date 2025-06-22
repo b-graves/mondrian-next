@@ -66,12 +66,20 @@ export const PaintingsProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const search = useCallback(
     async (searchTerm: string) => {
+      setPaintings([]);
+      setCurrentPage(1);
+      setHasMore(true);
+      setTotalCount(0);
       await loadMore(1, searchTerm);
     },
     [loadMore]
   );
 
   const clearSearch = useCallback(async () => {
+    setPaintings([]);
+    setCurrentPage(1);
+    setHasMore(true);
+    setTotalCount(0);
     await loadMore(1, "");
   }, [loadMore]);
 
