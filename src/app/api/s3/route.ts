@@ -65,6 +65,30 @@ async function fetchPaintingMeta(s3Object: S3Object) {
   return null;
 }
 
+// Helper to fetch full painting data with number
+async function fetchPaintingWithNumber(s3Object: S3Object, number: number) {
+  if (!s3Object.Key) return null;
+
+  const command = new GetObjectCommand({
+    Bucket: BUCKET_NAME,
+    Key: s3Object.Key,
+  });
+  const response = await s3Client.send(command);
+  if (response.Body) {
+    const bodyContents = await response.Body.transformToString();
+    try {
+      const parsed = JSON.parse(bodyContents);
+      return {
+        ...parsed,
+        number,
+      };
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
 // GET handler for listing objects or getting a specific object
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -76,53 +100,100 @@ export async function GET(request: NextRequest) {
   try {
     // If key is provided, get a specific object
     if (key) {
-      const command = new GetObjectCommand({
-        Bucket: BUCKET_NAME,
-        Key: key,
+      // First get all objects to determine the painting number
+      const allObjects = await fetchAllObjects();
+      allObjects.sort((a, b) => {
+        const dateA = a.LastModified ? new Date(a.LastModified) : new Date(0);
+        const dateB = b.LastModified ? new Date(b.LastModified) : new Date(0);
+        return dateA.getTime() - dateB.getTime(); // Oldest first for numbering
       });
 
-      const response = await s3Client.send(command);
-
-      // Convert stream to text if it's JSON
-      if (response.Body) {
-        const bodyContents = await response.Body.transformToString();
-        return NextResponse.json(JSON.parse(bodyContents));
+      const paintingIndex = allObjects.findIndex((obj) => obj.Key === key);
+      if (paintingIndex === -1) {
+        return NextResponse.json(
+          { error: "Painting not found" },
+          { status: 404 }
+        );
       }
 
-      return NextResponse.json(
-        { error: "No body in response" },
-        { status: 404 }
+      const paintingNumber = paintingIndex + 1; // 1-based numbering
+      const painting = await fetchPaintingWithNumber(
+        allObjects[paintingIndex],
+        paintingNumber
       );
+
+      if (!painting) {
+        return NextResponse.json(
+          { error: "Failed to parse painting" },
+          { status: 500 }
+        );
+      }
+
+      return NextResponse.json(painting);
     }
     // If search is present, fetch all, filter, and paginate
     else if (search) {
       const allObjects = await fetchAllObjects();
-      // Sort by LastModified descending
+      // Sort by LastModified ascending (oldest first) for numbering
       allObjects.sort((a, b) => {
         const dateA = a.LastModified ? new Date(a.LastModified) : new Date(0);
         const dateB = b.LastModified ? new Date(b.LastModified) : new Date(0);
-        return dateB.getTime() - dateA.getTime();
+        return dateA.getTime() - dateB.getTime();
       });
-      // Fetch metadata for all objects
+
+      // Fetch metadata for all objects to filter
       const metas = await Promise.all(
         allObjects.map((obj) => (obj.Key ? fetchPaintingMeta(obj) : null))
       );
+
       // Filter by search (all words must be present in artist or title)
       const searchWords = search.split(/\s+/).filter(Boolean);
-      const filtered = metas.filter((meta) => {
-        if (!meta) return false;
-        const combined = (meta.artist + " " + meta.title).toLowerCase();
-        return searchWords.every((word) => combined.includes(word));
+      const filteredIndices = metas
+        .map((meta, index) => {
+          if (!meta) return null;
+          const combined = (meta.artist + " " + meta.title).toLowerCase();
+          return searchWords.every((word) => combined.includes(word))
+            ? index
+            : null;
+        })
+        .filter((index): index is number => index !== null);
+
+      // Sort filtered results by date descending (newest first) for display
+      const sortedIndices = [...filteredIndices].sort((a, b) => {
+        const dateA = allObjects[a].LastModified
+          ? new Date(allObjects[a].LastModified!)
+          : new Date(0);
+        const dateB = allObjects[b].LastModified
+          ? new Date(allObjects[b].LastModified!)
+          : new Date(0);
+        return dateB.getTime() - dateA.getTime();
       });
+
       // Paginate
       const start = (page - 1) * pageSize;
       const end = start + pageSize;
-      const files = filtered.slice(start, end);
-      const hasMore = end < filtered.length;
+      const pageIndices = sortedIndices.slice(start, end);
+
+      // Fetch full paintings with numbers
+      const paintings = await Promise.all(
+        pageIndices.map(async (index) => {
+          const paintingNumber = index + 1; // 1-based numbering
+          return await fetchPaintingWithNumber(
+            allObjects[index],
+            paintingNumber
+          );
+        })
+      );
+
+      const validPaintings = paintings.filter(
+        (p): p is NonNullable<typeof p> => p !== null
+      );
+      const hasMore = end < sortedIndices.length;
+
       return NextResponse.json({
-        files,
+        paintings: validPaintings,
         hasMore,
-        total: filtered.length,
+        total: sortedIndices.length,
         page,
         pageSize,
       });
@@ -130,19 +201,41 @@ export async function GET(request: NextRequest) {
     // Otherwise, fetch all objects, sort, and paginate
     else {
       const allObjects = await fetchAllObjects();
-      // Sort by LastModified descending
+      // Sort by LastModified ascending (oldest first) for numbering
       allObjects.sort((a, b) => {
+        const dateA = a.LastModified ? new Date(a.LastModified) : new Date(0);
+        const dateB = b.LastModified ? new Date(b.LastModified) : new Date(0);
+        return dateA.getTime() - dateB.getTime();
+      });
+
+      // Sort for display (newest first)
+      const displayObjects = [...allObjects].sort((a, b) => {
         const dateA = a.LastModified ? new Date(a.LastModified) : new Date(0);
         const dateB = b.LastModified ? new Date(b.LastModified) : new Date(0);
         return dateB.getTime() - dateA.getTime();
       });
+
       // Paginate
       const start = (page - 1) * pageSize;
       const end = start + pageSize;
-      const files = allObjects.slice(start, end);
-      const hasMore = end < allObjects.length;
+      const pageObjects = displayObjects.slice(start, end);
+
+      // Fetch full paintings with numbers
+      const paintings = await Promise.all(
+        pageObjects.map(async (obj) => {
+          const originalIndex = allObjects.findIndex((o) => o.Key === obj.Key);
+          const paintingNumber = originalIndex + 1; // 1-based numbering
+          return await fetchPaintingWithNumber(obj, paintingNumber);
+        })
+      );
+
+      const validPaintings = paintings.filter(
+        (p): p is NonNullable<typeof p> => p !== null
+      );
+      const hasMore = end < displayObjects.length;
+
       return NextResponse.json({
-        files,
+        paintings: validPaintings,
         hasMore,
         total: allObjects.length,
         page,
@@ -170,19 +263,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Get all existing objects to determine the next painting number
+    const allObjects = await fetchAllObjects();
+    const nextNumber = allObjects.length + 1; // 1-based numbering
+
+    // Add the number to the painting data
+    const paintingWithNumber = {
+      ...data,
+      number: nextNumber,
+    };
+
     const key = `${data.details.artist}${data.details.date}.json`;
 
     const command = new PutObjectCommand({
       Bucket: BUCKET_NAME,
       Key: key,
-      Body: JSON.stringify(data),
+      Body: JSON.stringify(paintingWithNumber),
       ContentType: "application/json",
       ACL: "public-read",
     });
 
     await s3Client.send(command);
 
-    return NextResponse.json({ success: true, key });
+    return NextResponse.json({ success: true, key, number: nextNumber });
   } catch (error) {
     console.error("S3 error:", error);
     return NextResponse.json(

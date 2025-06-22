@@ -1,5 +1,4 @@
 import SavedPainting from "../types/SavedPainting";
-import { S3Object } from "../types/S3Types";
 
 /**
  * Get paintings from S3 with global date-sorted pagination and optional search
@@ -9,7 +8,7 @@ export async function getPaintings({
   pageSize = 10,
   search = "",
 }: { page?: number; pageSize?: number; search?: string } = {}): Promise<{
-  files: S3Object[];
+  paintings: SavedPainting[];
   hasMore: boolean;
   total: number;
   page: number;

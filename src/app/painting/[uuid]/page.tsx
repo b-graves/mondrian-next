@@ -10,9 +10,7 @@ import paintingStyles from "./page.module.css";
 
 export default function PaintingPage() {
   const params = useParams();
-  const [painting, setPainting] = useState<
-    (SavedPainting & { key: string; etag?: string }) | null
-  >(null);
+  const [painting, setPainting] = useState<SavedPainting | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,12 +26,7 @@ export default function PaintingPage() {
         }
 
         const data = await response.json();
-        // Add the key and etag for the Painting component
-        setPainting({
-          ...data,
-          key: `${params.uuid}.json`, // Construct the key from the UUID
-          etag: params.uuid as string, // Use the UUID as the etag
-        });
+        setPainting(data);
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "Failed to load painting"

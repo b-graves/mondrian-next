@@ -3,16 +3,14 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import Gallery from "../../components/Gallery/Gallery";
 import SavedPainting from "../../types/SavedPainting";
-import { getPaintings, getPainting } from "../../services/s3Service";
+import { getPaintings } from "../../services/s3Service";
 import Link from "next/link";
 import galleryStyles from "./page.module.css";
 
 const PAGE_SIZE = 10;
 
 export default function GalleryPage() {
-  const [paintings, setPaintings] = useState<
-    (SavedPainting & { key: string; etag?: string })[]
-  >([]);
+  const [paintings, setPaintings] = useState<SavedPainting[]>([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -32,20 +30,10 @@ export default function GalleryPage() {
           pageSize: PAGE_SIZE,
           search: searchTerm,
         });
-        const loaded: (SavedPainting & { key: string; etag?: string })[] = [];
-        for (const file of data.files) {
-          if (file.Key) {
-            try {
-              const painting = await getPainting(file.Key);
-              loaded.push({ ...painting, key: file.Key, etag: file.ETag });
-            } catch (error) {
-              console.error(`Error fetching painting ${file.Key}:`, error);
-            }
-          }
-        }
+
         if (thisRequestId === requestIdRef.current) {
           setPaintings((prev) =>
-            pageToLoad === 1 ? loaded : [...prev, ...loaded]
+            pageToLoad === 1 ? data.paintings : [...prev, ...data.paintings]
           );
           setHasMore(data.hasMore);
         }

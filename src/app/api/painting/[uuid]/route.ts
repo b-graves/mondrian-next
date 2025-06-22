@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getPainting } from "../../../../services/s3Service";
 import { getPaintings } from "../../../../services/s3Service";
 
 export async function GET(
@@ -8,35 +7,45 @@ export async function GET(
 ) {
   try {
     const { uuid } = await params;
-    console.log("Looking for painting with ETag/UUID:", uuid);
+    const paintingNumber = parseInt(uuid, 10);
 
-    // Since S3 doesn't support direct lookup by ETag, we need to list all objects
-    // and find the one with the matching ETag
+    if (isNaN(paintingNumber)) {
+      return NextResponse.json(
+        { error: "Invalid painting number" },
+        { status: 400 }
+      );
+    }
+
+    console.log("Looking for painting number:", paintingNumber);
+
+    // Get all paintings to find the one with the matching number
     const data = await getPaintings({ page: 1, pageSize: 1000 }); // Get all paintings
-    console.log("Found", data.files.length, "total files");
+    console.log("Found", data.paintings.length, "total paintings");
 
-    // Find the painting with the matching ETag
-    const matchingFile = data.files.find((file) => {
-      const etag = file.ETag ? file.ETag.replace(/"/g, "") : "";
-      console.log("Checking file:", file.Key, "ETag:", etag, "against:", uuid);
-      return etag === uuid;
+    // Find the painting with the matching number
+    const matchingPainting = data.paintings.find((painting) => {
+      console.log(
+        "Checking painting number:",
+        painting.number,
+        "against:",
+        paintingNumber
+      );
+      return painting.number === paintingNumber;
     });
 
-    console.log("Matching file found:", matchingFile);
+    console.log("Matching painting found:", matchingPainting);
 
-    if (!matchingFile || !matchingFile.Key) {
-      console.log("No matching file found for ETag:", uuid);
+    if (!matchingPainting) {
+      console.log("No matching painting found for number:", paintingNumber);
       return NextResponse.json(
         { error: "Painting not found" },
         { status: 404 }
       );
     }
 
-    // Fetch the painting using the found key
-    const painting = await getPainting(matchingFile.Key);
-    console.log("Successfully fetched painting for key:", matchingFile.Key);
+    console.log("Successfully found painting number:", paintingNumber);
 
-    return NextResponse.json(painting);
+    return NextResponse.json(matchingPainting);
   } catch (error) {
     console.error("Error fetching painting:", error);
     return NextResponse.json(

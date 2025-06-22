@@ -5,7 +5,7 @@ import SavedPainting from "../../types/SavedPainting";
 import Painting from "./Painting";
 
 interface GalleryProps {
-  paintings: (SavedPainting & { key: string; etag?: string })[];
+  paintings: SavedPainting[];
 }
 
 const Gallery: React.FC<GalleryProps> = ({ paintings }) => {
