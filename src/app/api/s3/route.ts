@@ -37,34 +37,6 @@ async function fetchAllObjects(): Promise<S3Object[]> {
   return allObjects;
 }
 
-// Helper to fetch painting metadata from S3
-async function fetchPaintingMeta(s3Object: S3Object) {
-  if (!s3Object.Key) return null;
-
-  const command = new GetObjectCommand({
-    Bucket: BUCKET_NAME,
-    Key: s3Object.Key,
-  });
-  const response = await s3Client.send(command);
-  if (response.Body) {
-    const bodyContents = await response.Body.transformToString();
-    try {
-      const parsed = JSON.parse(bodyContents);
-      return {
-        Key: s3Object.Key,
-        ETag: s3Object.ETag,
-        artist: parsed.details?.artist || "",
-        title: parsed.details?.title || "",
-        year: parsed.details?.year || "",
-        lastModified: parsed.details?.date || 0,
-      };
-    } catch {
-      return null;
-    }
-  }
-  return null;
-}
-
 // Helper to fetch full painting data with number
 async function fetchPaintingWithNumber(s3Object: S3Object, number: number) {
   if (!s3Object.Key) return null;
