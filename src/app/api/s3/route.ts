@@ -38,7 +38,7 @@ async function fetchAllObjects(): Promise<S3Object[]> {
 }
 
 // Helper to fetch full painting data with number
-async function fetchPaintingWithNumber(s3Object: S3Object, number: number) {
+async function fetchFullPaintingData(s3Object: S3Object, number: number) {
   if (!s3Object.Key) return null;
 
   const command = new GetObjectCommand({
@@ -53,6 +53,7 @@ async function fetchPaintingWithNumber(s3Object: S3Object, number: number) {
       return {
         ...parsed,
         number,
+        etag: s3Object.ETag?.replace(/"/g, ""), // S3 ETags are quoted
       };
     } catch {
       return null;
@@ -89,7 +90,7 @@ export async function GET(request: NextRequest) {
       }
 
       const paintingNumber = paintingIndex + 1; // 1-based numbering
-      const painting = await fetchPaintingWithNumber(
+      const painting = await fetchFullPaintingData(
         allObjects[paintingIndex],
         paintingNumber
       );
@@ -144,10 +145,7 @@ export async function GET(request: NextRequest) {
       const paintings = await Promise.all(
         pageIndices.map(async (index) => {
           const paintingNumber = index + 1; // 1-based numbering
-          return await fetchPaintingWithNumber(
-            allObjects[index],
-            paintingNumber
-          );
+          return await fetchFullPaintingData(allObjects[index], paintingNumber);
         })
       );
 
@@ -191,7 +189,7 @@ export async function GET(request: NextRequest) {
         pageObjects.map(async (obj) => {
           const originalIndex = allObjects.findIndex((o) => o.Key === obj.Key);
           const paintingNumber = originalIndex + 1; // 1-based numbering
-          return await fetchPaintingWithNumber(obj, paintingNumber);
+          return await fetchFullPaintingData(obj, paintingNumber);
         })
       );
 

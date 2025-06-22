@@ -11,4 +11,5 @@ export default interface SavedPainting {
   painting: Painting;
   details: Details;
   number?: number;
+  etag?: string;
 }

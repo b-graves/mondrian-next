@@ -1,56 +1,57 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getPaintings } from "../../../../services/s3Service";
+import { fetchAllObjects, fetchFullPaintingData } from "./helpers";
+import { _Object as S3Object } from "@aws-sdk/client-s3";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ uuid: string }> }
+  { params }: { params: { uuid: string } }
 ) {
   try {
-    const { uuid } = await params;
-    const paintingNumber = parseInt(uuid, 10);
+    const { uuid: etag } = params;
 
-    if (isNaN(paintingNumber)) {
-      return NextResponse.json(
-        { error: "Invalid painting number" },
-        { status: 400 }
-      );
-    }
+    const allObjects = await fetchAllObjects();
 
-    console.log("Looking for painting number:", paintingNumber);
+    const matchingObject = allObjects.find(
+      (obj: S3Object) => obj.ETag?.replace(/"/g, "") === etag
+    );
 
-    // Get all paintings to find the one with the matching number
-    const data = await getPaintings({ page: 1, pageSize: 1000 }); // Get all paintings
-    console.log("Found", data.paintings.length, "total paintings");
-
-    // Find the painting with the matching number
-    const matchingPainting = data.paintings.find((painting) => {
-      console.log(
-        "Checking painting number:",
-        painting.number,
-        "against:",
-        paintingNumber
-      );
-      return painting.number === paintingNumber;
-    });
-
-    console.log("Matching painting found:", matchingPainting);
-
-    if (!matchingPainting) {
-      console.log("No matching painting found for number:", paintingNumber);
+    if (!matchingObject) {
       return NextResponse.json(
         { error: "Painting not found" },
         { status: 404 }
       );
     }
 
-    console.log("Successfully found painting number:", paintingNumber);
+    const sortedObjects = [...allObjects].sort((a: S3Object, b: S3Object) => {
+      const dateA = a.LastModified ? new Date(a.LastModified) : new Date(0);
+      const dateB = b.LastModified ? new Date(b.LastModified) : new Date(0);
+      return dateA.getTime() - dateB.getTime();
+    });
 
-    return NextResponse.json(matchingPainting);
+    const paintingIndex = sortedObjects.findIndex(
+      (obj: S3Object) => obj.Key === matchingObject.Key
+    );
+
+    const paintingNumber = paintingIndex + 1;
+
+    const painting = await fetchFullPaintingData(
+      matchingObject,
+      paintingNumber
+    );
+
+    if (!painting) {
+      return NextResponse.json(
+        { error: "Failed to parse painting" },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json(painting);
   } catch (error) {
     console.error("Error fetching painting:", error);
     return NextResponse.json(
       { error: "Failed to fetch painting" },
-      { status: 404 }
+      { status: 500 }
     );
   }
 }

@@ -22,22 +22,18 @@ export default function PaintingPage() {
 
       setLoading(true);
       setError(null);
-      const paintingNumber = parseInt(params.uuid as string, 10);
+      const etag = params.uuid as string;
 
-      // 1. Try to find the painting in the context first
-      const existingPainting = paintings.find(
-        (p) => p.number === paintingNumber
-      );
+      const existingPainting = paintings.find((p) => p.etag === etag);
 
       if (existingPainting) {
         setPainting(existingPainting);
         setLoading(false);
-        return; // Found it, no need to fetch
+        return;
       }
 
-      // 2. If not in context, fetch from the API
       try {
-        const response = await fetch(`/api/painting/${params.uuid}`);
+        const response = await fetch(`/api/painting/${etag}`);
         if (!response.ok) {
           throw new Error("Painting not found");
         }

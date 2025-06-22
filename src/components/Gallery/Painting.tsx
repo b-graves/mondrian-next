@@ -12,7 +12,7 @@ interface PaintingProps {
 const Painting: React.FC<PaintingProps> = ({ painting }) => {
   return (
     <Link
-      href={`/painting/${painting.number}`}
+      href={`/painting/${painting.etag}`}
       style={{
         textDecoration: "none",
         color: "inherit",
