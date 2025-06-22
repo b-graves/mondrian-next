@@ -7,24 +7,40 @@ import Painting from "../../../components/Gallery/Painting";
 import Link from "next/link";
 import styles from "../../page.module.css";
 import paintingStyles from "./page.module.css";
+import { usePaintings } from "../../../contexts/PaintingsContext";
 
 export default function PaintingPage() {
   const params = useParams();
+  const { paintings } = usePaintings();
   const [painting, setPainting] = useState<SavedPainting | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchPainting = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+    const findOrFetchPainting = async () => {
+      if (!params.uuid) return;
 
+      setLoading(true);
+      setError(null);
+      const paintingNumber = parseInt(params.uuid as string, 10);
+
+      // 1. Try to find the painting in the context first
+      const existingPainting = paintings.find(
+        (p) => p.number === paintingNumber
+      );
+
+      if (existingPainting) {
+        setPainting(existingPainting);
+        setLoading(false);
+        return; // Found it, no need to fetch
+      }
+
+      // 2. If not in context, fetch from the API
+      try {
         const response = await fetch(`/api/painting/${params.uuid}`);
         if (!response.ok) {
           throw new Error("Painting not found");
         }
-
         const data = await response.json();
         setPainting(data);
       } catch (err) {
@@ -36,10 +52,8 @@ export default function PaintingPage() {
       }
     };
 
-    if (params.uuid) {
-      fetchPainting();
-    }
-  }, [params.uuid]);
+    findOrFetchPainting();
+  }, [params.uuid, paintings]);
 
   if (loading) {
     return (
