@@ -1,83 +1,35 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useRef, useEffect } from "react";
 import Gallery from "../../components/Gallery/Gallery";
 import { usePaintings } from "../../contexts/PaintingsContext";
-import SavedPainting from "../../types/SavedPainting";
 import Link from "next/link";
 import galleryStyles from "./page.module.css";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-
-const PAGE_SIZE = 100;
 
 export default function GalleryPageClient() {
   const {
     paintings,
     loading,
     hasMore,
-    currentPage,
-    loadMore,
-    search,
-    appendPaintings,
+    activeSearchTerm,
+    loadMorePaintings,
+    searchPaintings,
   } = usePaintings();
+
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-
-  const [nextPagePaintings, setNextPagePaintings] = useState<SavedPainting[]>(
-    []
-  );
-  const [preloading, setPreloading] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const requestIdRef = useRef(0);
-  const lastPreloadedPage = useRef(0);
 
-  const activeSearchTerm = searchParams.get("search") || "";
-
+  // Sync the search input with the URL on load
   useEffect(() => {
     const term = searchParams.get("search") || "";
     if (searchInputRef.current) {
       searchInputRef.current.value = term;
     }
-    setNextPagePaintings([]);
-    lastPreloadedPage.current = 0;
-    search(term);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Let the context handle the initial search logic
   }, [searchParams]);
-
-  const preloadNextPage = useCallback(
-    async (pageToPreload: number, searchTerm: string) => {
-      if (preloading || !hasMore || lastPreloadedPage.current === pageToPreload)
-        return;
-      setPreloading(true);
-      const thisRequestId = ++requestIdRef.current;
-      try {
-        const data = await fetch(
-          `/api/s3?page=${pageToPreload}&pageSize=${PAGE_SIZE}${
-            searchTerm ? `&search=${encodeURIComponent(searchTerm)}` : ""
-          }`
-        );
-        const response = await data.json();
-        if (thisRequestId === requestIdRef.current) {
-          setNextPagePaintings(response.paintings);
-          lastPreloadedPage.current = pageToPreload;
-        }
-      } catch (error) {
-        if (thisRequestId === requestIdRef.current) {
-          console.error("Error preloading paintings:", error);
-        }
-      } finally {
-        setPreloading(false);
-      }
-    },
-    [preloading, hasMore]
-  );
-
-  useEffect(() => {
-    if (hasMore) {
-      preloadNextPage(currentPage + 1, activeSearchTerm);
-    }
-  }, [currentPage, hasMore, activeSearchTerm, preloadNextPage]);
 
   const handleSearch = () => {
     const newSearchTerm = searchInputRef.current?.value.trim() ?? "";
@@ -87,56 +39,46 @@ export default function GalleryPageClient() {
     } else {
       params.delete("search");
     }
+    // Update URL, which will trigger a re-render and let the context search
     router.push(`${pathname}?${params.toString()}`);
+    searchPaintings(newSearchTerm);
   };
 
   const handleClearSearch = () => {
     const params = new URLSearchParams(searchParams);
     params.delete("search");
     router.push(`${pathname}?${params.toString()}`);
-  };
-
-  const handleLoadMore = () => {
-    if (!loading && hasMore) {
-      if (nextPagePaintings.length > 0) {
-        appendPaintings(nextPagePaintings);
-        setNextPagePaintings([]);
-      } else {
-        loadMore(currentPage + 1, activeSearchTerm);
-      }
-    }
+    searchPaintings("");
   };
 
   return (
     <div className={galleryStyles.galleryContainer}>
-      {!loading && (
-        <div className={galleryStyles.searchContainer}>
-          <input
-            ref={searchInputRef}
-            type="text"
-            placeholder="Search..."
-            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-            disabled={loading}
-            className={galleryStyles.searchInput}
-          />
+      <div className={galleryStyles.searchContainer}>
+        <input
+          ref={searchInputRef}
+          type="text"
+          placeholder="Search..."
+          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+          disabled={loading}
+          className={galleryStyles.searchInput}
+        />
+        <button
+          onClick={handleSearch}
+          disabled={loading}
+          className={galleryStyles.searchButton}
+        >
+          Search
+        </button>
+        {activeSearchTerm && (
           <button
-            onClick={handleSearch}
+            onClick={handleClearSearch}
             disabled={loading}
             className={galleryStyles.searchButton}
           >
-            Search
+            Clear
           </button>
-          {activeSearchTerm && (
-            <button
-              onClick={handleClearSearch}
-              disabled={loading}
-              className={galleryStyles.searchButton}
-            >
-              Clear
-            </button>
-          )}
-        </div>
-      )}
+        )}
+      </div>
 
       <main
         style={{
@@ -148,7 +90,7 @@ export default function GalleryPageClient() {
         }}
       >
         {loading && paintings.length === 0 ? (
-          <div style={{ padding: 32 }}>Loading...</div>
+          <div>Loading...</div>
         ) : (
           <Gallery paintings={paintings} />
         )}
@@ -159,7 +101,7 @@ export default function GalleryPageClient() {
 
         {!loading && hasMore && paintings.length > 0 && (
           <button
-            onClick={handleLoadMore}
+            onClick={loadMorePaintings}
             style={{ margin: "2rem auto", display: "block" }}
           >
             Load More...

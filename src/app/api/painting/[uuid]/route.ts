@@ -4,10 +4,10 @@ import { _Object as S3Object } from "@aws-sdk/client-s3";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { uuid: string } }
+  { params }: { params: Promise<{ uuid: string }> }
 ) {
   try {
-    const { uuid: etag } = params;
+    const { uuid: etag } = await params;
 
     const allObjects = await fetchAllObjects();
 
