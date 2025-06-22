@@ -7,12 +7,12 @@ import Painting from "../../types/Painting";
 import SavedPainting, { Details } from "../../types/SavedPainting";
 import { savePainting } from "../../services/s3Service";
 import "./Studio.css";
+import { usePaintings } from "../../contexts/PaintingsContext";
+import { useRouter } from "next/navigation";
 
-interface StudioProps {
-  setUserPainting: (userPainting: SavedPainting) => void;
-}
-
-const Studio: React.FC<StudioProps> = ({ setUserPainting }) => {
+const Studio: React.FC = () => {
+  const router = useRouter();
+  const { prependPainting } = usePaintings();
   const [painting, setPainting] = useState<Painting>({
     canvas: {
       shape: "square",
@@ -30,6 +30,8 @@ const Studio: React.FC<StudioProps> = ({ setUserPainting }) => {
     year: new Date().getFullYear(),
     date: new Date().getTime(),
   });
+
+  const [isSaving, setIsSaving] = useState(false);
 
   const updatePainting = (updatedPainting: Painting) => {
     setPainting(updatedPainting);
@@ -55,6 +57,7 @@ const Studio: React.FC<StudioProps> = ({ setUserPainting }) => {
   };
 
   const save = async () => {
+    setIsSaving(true);
     const paintingToSave: SavedPainting = {
       painting,
       details: {
@@ -64,12 +67,14 @@ const Studio: React.FC<StudioProps> = ({ setUserPainting }) => {
       },
     };
     try {
-      await savePainting(paintingToSave);
-      setUserPainting(paintingToSave);
-      alert("Painting saved to gallery!");
+      const { number } = await savePainting(paintingToSave);
+      const finalPainting = { ...paintingToSave, number };
+      prependPainting(finalPainting);
+      router.push("/gallery");
     } catch (error) {
       console.error("Error saving painting:", error);
       alert("Failed to save your painting. Please try again.");
+      setIsSaving(false);
     }
   };
 
@@ -88,6 +93,7 @@ const Studio: React.FC<StudioProps> = ({ setUserPainting }) => {
                 onClick={() =>
                   setPainting({ ...painting, canvas: { shape: "square" } })
                 }
+                disabled={isSaving}
               />
               <button
                 aria-label="Landscape Canvas"
@@ -97,6 +103,7 @@ const Studio: React.FC<StudioProps> = ({ setUserPainting }) => {
                 onClick={() =>
                   setPainting({ ...painting, canvas: { shape: "landscape" } })
                 }
+                disabled={isSaving}
               />
               <button
                 aria-label="Portrait Canvas"
@@ -106,10 +113,15 @@ const Studio: React.FC<StudioProps> = ({ setUserPainting }) => {
                 onClick={() =>
                   setPainting({ ...painting, canvas: { shape: "portrait" } })
                 }
+                disabled={isSaving}
               />
             </div>
           </div>
-          <button onClick={clear} className="new-canvas-link">
+          <button
+            onClick={clear}
+            className="new-canvas-link"
+            disabled={isSaving}
+          >
             New Canvas
           </button>
         </div>
@@ -136,6 +148,7 @@ const Studio: React.FC<StudioProps> = ({ setUserPainting }) => {
                   setDetails({ ...details, artist: e.target.value })
                 }
                 autoComplete="off"
+                disabled={isSaving}
               />
             </div>
             <div className="input-group">
@@ -147,10 +160,12 @@ const Studio: React.FC<StudioProps> = ({ setUserPainting }) => {
                   setDetails({ ...details, title: e.target.value })
                 }
                 autoComplete="off"
+                disabled={isSaving}
+                style={{ fontStyle: "italic" }}
               />
             </div>
-            <button type="submit" className="save-button">
-              Hang in the gallery
+            <button type="submit" className="save-button" disabled={isSaving}>
+              {isSaving ? "Saving..." : "Hang in the gallery"}
             </button>
           </form>
         </div>

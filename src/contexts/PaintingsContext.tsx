@@ -21,6 +21,7 @@ interface PaintingsContextType {
   search: (searchTerm: string) => Promise<void>;
   clearSearch: () => Promise<void>;
   appendPaintings: (newPaintings: SavedPainting[]) => void;
+  prependPainting: (newPainting: SavedPainting) => void;
 }
 
 const PaintingsContext = createContext<PaintingsContextType | undefined>(
@@ -80,6 +81,11 @@ export const PaintingsProvider: React.FC<{ children: React.ReactNode }> = ({
     setCurrentPage((prev) => prev + 1);
   };
 
+  const prependPainting = (newPainting: SavedPainting) => {
+    setPaintings((prev) => [newPainting, ...prev]);
+    setTotalCount((prev) => prev + 1);
+  };
+
   // Preload first batch when app starts
   useEffect(() => {
     loadMore(1, "");
@@ -96,6 +102,7 @@ export const PaintingsProvider: React.FC<{ children: React.ReactNode }> = ({
     search,
     clearSearch,
     appendPaintings,
+    prependPainting,
   };
 
   return (

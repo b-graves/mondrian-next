@@ -66,7 +66,7 @@ export async function getPainting(key: string): Promise<SavedPainting> {
  */
 export async function savePainting(
   painting: SavedPainting
-): Promise<{ success: boolean; key: string }> {
+): Promise<{ success: boolean; key: string; number: number }> {
   try {
     const response = await fetch("/api/s3", {
       method: "POST",
