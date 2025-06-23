@@ -168,7 +168,6 @@ const SplitSection: React.FC<SplitSectionProps> = ({
         width: "100%",
         height: "100%",
         position: "relative",
-        overflow: "hidden",
       }}
     >
       <div style={{ flexBasis: `${pos}%`, minWidth: 0, minHeight: 0 }}>
@@ -186,20 +185,25 @@ const SplitSection: React.FC<SplitSectionProps> = ({
         />
       </div>
 
-      {/* The visual line, positioned to be flush with the edges */}
-      <div style={lineStyle} />
+      {/* Only render the visual line and draggable area if position is valid */}
+      {pos >= 0 && pos <= 100 && (
+        <>
+          {/* The visual line, positioned to be flush with the edges */}
+          <div style={lineStyle} />
 
-      {/* The invisible, larger draggable area that sits on top, centered on the line */}
-      {updateSection && (
-        <div
-          style={draggableAreaStyle}
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-          onMouseDown={handleDragStart}
-          onTouchStart={handleDragStart}
-        >
-          <div style={overlayStyle} />
-        </div>
+          {/* The invisible, larger draggable area that sits on top, centered on the line */}
+          {updateSection && (
+            <div
+              style={draggableAreaStyle}
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+              onMouseDown={handleDragStart}
+              onTouchStart={handleDragStart}
+            >
+              <div style={overlayStyle} />
+            </div>
+          )}
+        </>
       )}
     </div>
   );
