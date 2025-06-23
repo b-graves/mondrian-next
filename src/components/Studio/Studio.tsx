@@ -3,12 +3,24 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Canvas from "../Canvas/Canvas";
-import Painting from "../../types/Painting";
+import Painting, { Split, Block } from "../../types/Painting";
 import SavedPainting, { Details } from "../../types/SavedPainting";
 import { savePainting } from "../../services/s3Service";
 import "./Studio.css";
 import { usePaintings } from "../../contexts/PaintingsContext";
 import { useRouter } from "next/navigation";
+
+// Helper function to check if a painting has at least one split
+const hasAtLeastOneSplit = (painting: Painting): boolean => {
+  const checkSection = (section: Split | Block): boolean => {
+    if (section.isSplit) {
+      return true; // Found a split
+    }
+    return false; // It's a block, no splits
+  };
+
+  return checkSection(painting.rootSection);
+};
 
 const Studio: React.FC = () => {
   const router = useRouter();
@@ -77,6 +89,8 @@ const Studio: React.FC = () => {
       setIsSaving(false);
     }
   };
+
+  const hasSplits = hasAtLeastOneSplit(painting);
 
   return (
     <div className="studio-container-fullscreen">
@@ -164,7 +178,11 @@ const Studio: React.FC = () => {
                 style={{ fontStyle: "italic" }}
               />
             </div>
-            <button type="submit" className="save-button" disabled={isSaving}>
+            <button
+              type="submit"
+              className="save-button"
+              disabled={isSaving || !hasSplits}
+            >
               {isSaving ? "Saving..." : "Hang in the gallery"}
             </button>
           </form>
