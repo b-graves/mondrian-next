@@ -73,6 +73,7 @@
 .painting__control {
   padding: 5px;
   color: white;
+  cursor: pointer;
 }
 
 .painting__control--white,
