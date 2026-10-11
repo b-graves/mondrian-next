@@ -212,6 +212,10 @@
   visibility: hidden;
 }
 
+.continueHintEnd {
+  white-space: nowrap;
+}
+
 .continueHint[data-visible="true"] {
   visibility: visible;
 }

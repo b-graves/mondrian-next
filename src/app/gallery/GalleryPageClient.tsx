@@ -194,7 +194,10 @@ export default function GalleryPageClient() {
           data-visible={showContinue ? "true" : "false"}
           aria-hidden="true"
         >
-          Exhibition continues this way → [scroll]
+          Exhibition continues{" "}
+          <span className={galleryStyles.continueHintEnd}>
+            this way [scroll] →
+          </span>
         </p>
       )}
     </div>
