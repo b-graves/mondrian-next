@@ -30,6 +30,12 @@ export default function GalleryPageClient() {
   loadMoreRef.current = loadMorePaintings;
   const [showContinue, setShowContinue] = useState(false);
   const [titleFaded, setTitleFaded] = useState(false);
+  const [searching, setSearching] = useState(false);
+
+  const resetScroll = () => {
+    if (trackRef.current) trackRef.current.scrollLeft = 0;
+    setTitleFaded(false);
+  };
 
   useLayoutEffect(() => {
     const track = trackRef.current;
@@ -49,7 +55,7 @@ export default function GalleryPageClient() {
 
       const remaining =
         track.scrollWidth - track.clientWidth - track.scrollLeft;
-      if (remaining < track.clientWidth * 1.25) {
+      if (!searching && remaining < track.clientWidth * 1.25) {
         loadMoreRef.current();
       }
 
@@ -84,11 +90,15 @@ export default function GalleryPageClient() {
       track.removeEventListener("scroll", update);
       window.removeEventListener("resize", update);
     };
-  }, [paintings, loading, hasMore]);
+  }, [paintings, loading, hasMore, searching]);
 
   useEffect(() => {
-    if (trackRef.current) trackRef.current.scrollLeft = 0;
-  }, [order]);
+    resetScroll();
+  }, [order, activeSearchTerm]);
+
+  useEffect(() => {
+    if (!loading) setSearching(false);
+  }, [loading]);
   useEffect(() => {
     const term = searchParams.get("search") || "";
     if (searchInputRef.current) {
@@ -105,7 +115,8 @@ export default function GalleryPageClient() {
     } else {
       params.delete("search");
     }
-    // Update URL, which will trigger a re-render and let the context search
+    setSearching(true);
+    resetScroll();
     router.push(`${pathname}?${params.toString()}`);
     searchPaintings(newSearchTerm);
   };
@@ -113,6 +124,8 @@ export default function GalleryPageClient() {
   const handleClearSearch = () => {
     const params = new URLSearchParams(searchParams);
     params.delete("search");
+    setSearching(true);
+    resetScroll();
     router.push(`${pathname}?${params.toString()}`);
     searchPaintings("");
   };
@@ -137,10 +150,11 @@ export default function GalleryPageClient() {
         />
         <button
           onClick={handleSearch}
-          disabled={loading}
+          disabled={loading || searching}
           className={galleryStyles.searchButton}
+          aria-busy={searching}
         >
-          Search
+          {searching ? "Searching..." : "Search"}
         </button>
         {activeSearchTerm && (
           <button
@@ -171,7 +185,17 @@ export default function GalleryPageClient() {
       </div>
 
       <main className={galleryStyles.galleryMain}>
-        {loading && paintings.length === 0 ? (
+        {searching ? (
+          <div ref={trackRef} className={galleryStyles.galleryTrack}>
+            <div
+              className={galleryStyles.searchingSlot}
+              role="status"
+              aria-live="polite"
+            >
+              Searching...
+            </div>
+          </div>
+        ) : loading && paintings.length === 0 ? (
           <div className={galleryStyles.galleryMessage}>Loading...</div>
         ) : !loading && paintings.length === 0 && activeSearchTerm ? (
           <div className={galleryStyles.galleryMessage}>
@@ -187,7 +211,7 @@ export default function GalleryPageClient() {
       <Link ref={studioRef} href="/" className={galleryStyles.studioLink}>
         ← Go to studio
       </Link>
-      {paintings.length > 1 && (
+      {paintings.length > 1 && !searching && (
         <p
           ref={hintRef}
           className={galleryStyles.continueHint}

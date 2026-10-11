@@ -90,6 +90,16 @@
   width: calc(var(--gallery-portrait-h) * 0.75);
 }
 
+.searchingSlot {
+  flex: 0 0 auto;
+  width: var(--gallery-square);
+  height: var(--stage);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  scroll-snap-align: center;
+}
+
 .galleryMessage {
   height: 100%;
   display: flex;
