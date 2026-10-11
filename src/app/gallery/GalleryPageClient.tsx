@@ -142,20 +142,17 @@ export default function GalleryPageClient() {
           </button>
         )}
       </div>
-      <label className={galleryStyles.orderControl}>
-        Order
-        <select
-          className={galleryStyles.orderSelect}
-          value={order}
-          aria-label="Order"
-          onChange={(event) => setOrder(event.target.value as GalleryOrder)}
-          disabled={loading && paintings.length === 0}
-        >
+      <select
+        className={galleryStyles.orderSelect}
+        value={order}
+        aria-label="Order"
+        onChange={(event) => setOrder(event.target.value as GalleryOrder)}
+        disabled={loading && paintings.length === 0}
+      >
           <option value="newest">Newest</option>
           <option value="oldest">Oldest</option>
           <option value="random">Random</option>
         </select>
-      </label>
       </div>
 
       <main className={galleryStyles.galleryMain}>
