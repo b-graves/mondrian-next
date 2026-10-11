@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useLayoutEffect, useState } from "react";
 import Gallery from "../../components/Gallery/Gallery";
-import { usePaintings } from "../../contexts/PaintingsContext";
+import { usePaintings, GalleryOrder } from "../../contexts/PaintingsContext";
 import Link from "next/link";
 import galleryStyles from "./page.module.css";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
@@ -15,6 +15,8 @@ export default function GalleryPageClient() {
     activeSearchTerm,
     loadMorePaintings,
     searchPaintings,
+    order,
+    setOrder,
   } = usePaintings();
 
   const router = useRouter();
@@ -24,6 +26,8 @@ export default function GalleryPageClient() {
   const trackRef = useRef<HTMLDivElement>(null);
   const hintRef = useRef<HTMLParagraphElement>(null);
   const studioRef = useRef<HTMLAnchorElement>(null);
+  const loadMoreRef = useRef(loadMorePaintings);
+  loadMoreRef.current = loadMorePaintings;
   const [showContinue, setShowContinue] = useState(false);
 
   useLayoutEffect(() => {
@@ -42,21 +46,25 @@ export default function GalleryPageClient() {
         track.style.setProperty("--gap", `${gap}px`);
       }
 
+      const remaining =
+        track.scrollWidth - track.clientWidth - track.scrollLeft;
+      if (remaining < track.clientWidth * 1.25) {
+        loadMoreRef.current();
+      }
+
       const hint = hintRef.current;
       if (!hint) {
         setShowContinue(false);
         return;
       }
 
-      const moreToSee =
-        track.scrollWidth - track.clientWidth - track.scrollLeft > 24;
       const hintRect = hint.getBoundingClientRect();
       const studioRect = studioRef.current?.getBoundingClientRect();
       const hitsStudio = !!studioRect && rectsOverlap(hintRect, studioRect, 12);
       const hitsPainting = [...track.querySelectorAll("a")].some((painting) =>
         rectsOverlap(hintRect, painting.getBoundingClientRect(), 8)
       );
-      const next = moreToSee && !hitsStudio && !hitsPainting;
+      const next = remaining > 24 && !hitsStudio && !hitsPainting;
       setShowContinue((current) => (current === next ? current : next));
     };
 
@@ -74,7 +82,9 @@ export default function GalleryPageClient() {
     };
   }, [paintings, loading, hasMore]);
 
-  // Sync the search input with the URL on load
+  useEffect(() => {
+    if (trackRef.current) trackRef.current.scrollLeft = 0;
+  }, [order]);
   useEffect(() => {
     const term = searchParams.get("search") || "";
     if (searchInputRef.current) {
@@ -105,6 +115,7 @@ export default function GalleryPageClient() {
 
   return (
     <div className={galleryStyles.galleryContainer}>
+      <div className={galleryStyles.topBar}>
       <div className={galleryStyles.searchContainer}>
         <input
           ref={searchInputRef}
@@ -131,6 +142,21 @@ export default function GalleryPageClient() {
           </button>
         )}
       </div>
+      <label className={galleryStyles.orderControl}>
+        Order
+        <select
+          className={galleryStyles.orderSelect}
+          value={order}
+          aria-label="Order"
+          onChange={(event) => setOrder(event.target.value as GalleryOrder)}
+          disabled={loading && paintings.length === 0}
+        >
+          <option value="newest">Newest</option>
+          <option value="oldest">Oldest</option>
+          <option value="random">Random</option>
+        </select>
+      </label>
+      </div>
 
       <main className={galleryStyles.galleryMain}>
         {loading && paintings.length === 0 ? (
@@ -142,14 +168,6 @@ export default function GalleryPageClient() {
         ) : (
           <div ref={trackRef} className={galleryStyles.galleryTrack}>
             <Gallery paintings={paintings} />
-            {!loading && hasMore && paintings.length > 0 && (
-              <button
-                onClick={loadMorePaintings}
-                className={galleryStyles.loadMore}
-              >
-                Load More...
-              </button>
-            )}
           </div>
         )}
       </main>

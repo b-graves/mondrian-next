@@ -62,13 +62,54 @@ async function fetchFullPaintingData(s3Object: S3Object, number: number) {
   return null;
 }
 
-// GET handler for listing objects or getting a specific object
+type GalleryOrder = "newest" | "oldest" | "random";
+
+function parseOrder(value: string | null): GalleryOrder {
+  if (value === "oldest" || value === "random") return value;
+  return "newest";
+}
+
+function modifiedTime(object: S3Object): number {
+  return object.LastModified ? new Date(object.LastModified).getTime() : 0;
+}
+
+function randomRank(seed: number, key: string): number {
+  let hash = seed >>> 0;
+  for (let i = 0; i < key.length; i++) {
+    hash ^= key.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function orderObjects(
+  objects: S3Object[],
+  order: GalleryOrder,
+  seed: number
+): S3Object[] {
+  const ordered = [...objects];
+  if (order === "oldest") {
+    ordered.sort((a, b) => modifiedTime(a) - modifiedTime(b));
+  } else if (order === "random") {
+    ordered.sort((a, b) => {
+      const rank =
+        randomRank(seed, a.Key || "") - randomRank(seed, b.Key || "");
+      if (rank !== 0) return rank;
+      return (a.Key || "").localeCompare(b.Key || "");
+    });
+  } else {
+    ordered.sort((a, b) => modifiedTime(b) - modifiedTime(a));
+  }
+  return ordered;
+}
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const key = searchParams.get("key");
   const page = parseInt(searchParams.get("page") || "1", 10);
   const pageSize = parseInt(searchParams.get("pageSize") || "10", 10);
   const search = searchParams.get("search")?.toLowerCase() || "";
+  const order = parseOrder(searchParams.get("order"));
+  const seed = parseInt(searchParams.get("seed") || "0", 10) || 0;
 
   try {
     // If key is provided, get a specific object
@@ -125,16 +166,12 @@ export async function GET(request: NextRequest) {
         })
         .filter((index): index is number => index !== null);
 
-      // Sort filtered results by date descending (newest first) for display
-      const sortedIndices = [...filteredIndices].sort((a, b) => {
-        const dateA = allObjects[a].LastModified
-          ? new Date(allObjects[a].LastModified!)
-          : new Date(0);
-        const dateB = allObjects[b].LastModified
-          ? new Date(allObjects[b].LastModified!)
-          : new Date(0);
-        return dateB.getTime() - dateA.getTime();
-      });
+      // Sort filtered results for display
+      const sortedIndices = orderObjects(
+        filteredIndices.map((index) => allObjects[index]),
+        order,
+        seed
+      ).map((object) => allObjects.findIndex((item) => item.Key === object.Key));
 
       // Paginate
       const start = (page - 1) * pageSize;
@@ -172,12 +209,8 @@ export async function GET(request: NextRequest) {
         return dateA.getTime() - dateB.getTime();
       });
 
-      // Sort for display (newest first)
-      const displayObjects = [...allObjects].sort((a, b) => {
-        const dateA = a.LastModified ? new Date(a.LastModified) : new Date(0);
-        const dateB = b.LastModified ? new Date(b.LastModified) : new Date(0);
-        return dateB.getTime() - dateA.getTime();
-      });
+      // Sort for display
+      const displayObjects = orderObjects(allObjects, order, seed);
 
       // Paginate
       const start = (page - 1) * pageSize;

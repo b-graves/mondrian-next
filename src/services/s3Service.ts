@@ -7,7 +7,15 @@ export async function getPaintings({
   page = 1,
   pageSize = 10,
   search = "",
-}: { page?: number; pageSize?: number; search?: string } = {}): Promise<{
+  order = "newest",
+  seed = 0,
+}: {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  order?: "newest" | "oldest" | "random";
+  seed?: number;
+} = {}): Promise<{
   paintings: SavedPainting[];
   hasMore: boolean;
   total: number;
@@ -19,6 +27,8 @@ export async function getPaintings({
     params.append("page", page.toString());
     params.append("pageSize", pageSize.toString());
     if (search) params.append("search", search);
+    if (order !== "newest") params.append("order", order);
+    if (order === "random") params.append("seed", seed.toString());
 
     // Use absolute URL for server-side calls, relative for client-side
     const baseUrl =
