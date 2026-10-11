@@ -10,6 +10,11 @@ import "./Studio.css";
 import { usePaintings } from "../../contexts/PaintingsContext";
 import { useRouter } from "next/navigation";
 
+function sectionHasWork(section: Split | Block): boolean {
+  if (section.isSplit) return true;
+  return section.color !== "white";
+}
+
 // Helper function to check if a painting has at least one split
 const hasAtLeastOneSplit = (painting: Painting): boolean => {
   const checkSection = (section: Split | Block): boolean => {
@@ -91,6 +96,20 @@ const Studio: React.FC = () => {
   };
 
   const hasSplits = hasAtLeastOneSplit(painting);
+  const submissionInProgress =
+    painting.canvas.shape !== "square" ||
+    details.artist.trim() !== "" ||
+    details.title.trim() !== "" ||
+    sectionHasWork(painting.rootSection);
+
+  const goToGallery = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!submissionInProgress) return;
+    event.preventDefault();
+    const leave = window.confirm(
+      "Are you sure? You will lose your submission."
+    );
+    if (leave) router.push("/gallery");
+  };
 
   return (
     <div className="studio-container-fullscreen">
@@ -140,11 +159,14 @@ const Studio: React.FC = () => {
           </button>
         </div>
 
-        <div className="studio-canvas-container">
-          <Canvas painting={painting} paint={updatePainting} />
-        </div>
+        <div className="studio-workspace">
+          <div className="studio-work">
+            <h1 className="edge-title studio-edge-title">Studio</h1>
+            <div className="studio-canvas-container">
+              <Canvas painting={painting} paint={updatePainting} />
+            </div>
 
-        <div className="studio-label-area">
+            <div className="studio-label-area">
           <form
             id="details-form"
             className="details-form-main"
@@ -185,12 +207,20 @@ const Studio: React.FC = () => {
             >
               {isSaving ? "Saving..." : "Hang in the gallery"}
             </button>
-          </form>
+            </form>
+            </div>
+          </div>
+          <img
+            className="studio-portrait"
+            src="/mondrian-studio.png"
+            alt="Piet Mondrian in his studio"
+          />
         </div>
       </main>
 
-      <Link href="/gallery" className="go-to-gallery-link">
-        <span>Go to gallery ↑</span>
+      <Link href="/gallery" className="go-to-gallery-link" onClick={goToGallery}>
+        <span className="go-to-gallery-sideways">Go to gallery ↑</span>
+        <span className="go-to-gallery-inline">Go to gallery →</span>
       </Link>
     </div>
   );

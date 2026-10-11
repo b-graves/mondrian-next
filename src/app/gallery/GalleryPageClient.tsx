@@ -115,6 +115,7 @@ export default function GalleryPageClient() {
 
   return (
     <div className={galleryStyles.galleryContainer}>
+      <h1 className={galleryStyles.galleryEdgeTitle}>Gallery</h1>
       <div className={galleryStyles.topBar}>
       <div className={galleryStyles.searchContainer}>
         <input
@@ -142,17 +143,22 @@ export default function GalleryPageClient() {
           </button>
         )}
       </div>
-      <select
-        className={galleryStyles.orderSelect}
-        value={order}
-        aria-label="Order"
-        onChange={(event) => setOrder(event.target.value as GalleryOrder)}
-        disabled={loading && paintings.length === 0}
-      >
+      <div className={galleryStyles.orderGroup}>
+        <Link href="/about" className={galleryStyles.aboutLink}>
+          About
+        </Link>
+        <select
+          className={galleryStyles.orderSelect}
+          value={order}
+          aria-label="Order"
+          onChange={(event) => setOrder(event.target.value as GalleryOrder)}
+          disabled={loading && paintings.length === 0}
+        >
           <option value="newest">Newest</option>
           <option value="oldest">Oldest</option>
           <option value="random">Random</option>
         </select>
+      </div>
       </div>
 
       <main className={galleryStyles.galleryMain}>

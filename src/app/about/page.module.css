@@ -1,0 +1,139 @@
+.page {
+  position: relative;
+  height: 100dvh;
+  overflow: hidden;
+  background: #fff;
+  color: #111;
+}
+
+.portrait,
+.painting,
+.title,
+.description {
+  position: absolute;
+}
+
+.portrait {
+  z-index: 0;
+}
+
+.painting {
+  z-index: 1;
+  height: auto;
+}
+
+.title,
+.description {
+  z-index: 2;
+  margin: 0;
+}
+
+.title {
+  font-weight: 400;
+  line-height: 1.15;
+}
+
+.description {
+  text-align: left;
+}
+
+.credit {
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  right: 0;
+  margin: 8px;
+  font-size: 12px;
+  opacity: 0.45;
+}
+
+.credit a {
+  color: black;
+  text-decoration: underline;
+}
+
+.studioLink,
+.galleryLink {
+  position: fixed;
+  z-index: 4;
+  bottom: 2rem;
+  padding: 0.5rem;
+  color: black;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  text-decoration: none;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 4px;
+}
+
+.studioLink {
+  left: 2rem;
+}
+
+.galleryLink {
+  right: 2rem;
+}
+
+@media (orientation: landscape) {
+  .portrait {
+    width: 40vw;
+    bottom: 0;
+    left: 25vw;
+  }
+
+  .painting {
+    width: 25vw;
+    top: 10vh;
+    left: 5vw;
+  }
+
+  .title {
+    font-size: 5em;
+    top: 20vh;
+    right: 14vw;
+  }
+
+  .description {
+    top: calc(6em + 25vh);
+    left: 57vw;
+    width: 30vw;
+    padding: 5px 8px;
+    background-color: rgba(255, 255, 255, 0.5);
+  }
+}
+
+@media (orientation: portrait) {
+  .portrait {
+    width: 70vw;
+    bottom: 70px;
+    left: 0;
+  }
+
+  .painting {
+    width: 30vw;
+    right: 50px;
+    bottom: 100px;
+  }
+
+  .title {
+    font-size: 3em;
+    top: 20px;
+    left: 20px;
+  }
+
+  .description {
+    top: calc(4em + 35px);
+    left: 20px;
+    width: 90%;
+    padding: 5px 0;
+    background-color: rgba(255, 255, 255, 0.3);
+  }
+}
+
+@media (max-width: 768px) {
+  .studioLink,
+  .galleryLink {
+    font-size: 0.875rem;
+  }
+}

@@ -1,8 +1,9 @@
 .studio-container-fullscreen {
   display: flex;
   flex-direction: column;
-  overflow: scroll;
+  overflow: hidden;
   width: 100vw;
+  height: 100dvh;
   position: relative;
   font-family: var(--font-space-mono), monospace;
   background-color: var(--background);
@@ -41,6 +42,26 @@
   display: flex;
   flex-direction: column;
   width: 100%;
+  flex: 1;
+  min-height: 0;
+}
+
+.edge-title {
+  position: fixed;
+  left: 3.25rem;
+  margin: 0;
+  transform: rotate(-90deg);
+  transform-origin: left center;
+  font-size: 5em;
+  font-weight: 400;
+  line-height: 1;
+  white-space: nowrap;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.studio-edge-title {
+  top: 64%;
 }
 
 .studio-top-bar {
@@ -51,7 +72,24 @@
   padding: 0.25rem 0.5rem;
   border-bottom: 1px solid var(--foreground);
   flex-shrink: 0;
-  margin-bottom: 2rem;
+}
+
+.studio-workspace {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: stretch;
+  padding: 0.85rem 3rem 0.85rem 6.5rem;
+}
+
+.studio-work {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .canvas-controls {
@@ -67,29 +105,42 @@
 }
 
 .shape-button {
-  border: 1px solid var(--foreground);
+  width: 30px;
+  height: 30px;
+  border: none;
   cursor: pointer;
   background-color: transparent;
   padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.shape-button.active {
+.shape-button::before {
+  content: "";
+  display: block;
+  box-sizing: border-box;
+  border: 1px solid var(--foreground);
+  background-color: transparent;
+}
+
+.shape-button.square::before {
+  width: 18px;
+  height: 18px;
+}
+
+.shape-button.landscape::before {
+  width: 22px;
+  height: 15px;
+}
+
+.shape-button.portrait::before {
+  width: 15px;
+  height: 22px;
+}
+
+.shape-button.active::before {
   background-color: #cccccc;
-}
-
-.shape-button.square {
-  width: 30px;
-  height: 30px;
-}
-
-.shape-button.landscape {
-  width: 40px;
-  height: 30px;
-}
-
-.shape-button.portrait {
-  width: 30px;
-  height: 40px;
 }
 
 .new-canvas-link {
@@ -105,15 +156,90 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
   /* Tallest studio canvas: square and portrait are 80vw in portrait
      orientation, and 60vh in landscape orientation. */
   height: 80vw;
   flex-shrink: 0;
 }
 
+.studio-portrait {
+  display: none;
+  height: 100%;
+  width: auto;
+  max-height: 100%;
+  flex: 0 0 auto;
+  margin-left: 1.25rem;
+}
+
+@media (min-width: 1200px) {
+  .studio-portrait {
+    display: block;
+  }
+}
+
 @media all and (orientation: landscape) {
   .studio-canvas-container {
     height: 60vh;
+  }
+}
+
+.go-to-gallery-inline {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .edge-title {
+    display: none;
+  }
+
+  .studio-workspace {
+    padding: 0.5rem 8px 4.5rem;
+  }
+
+  .studio-canvas-container {
+    height: auto;
+  }
+
+  .studio-canvas-container .canvas--square {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+  }
+
+  .studio-canvas-container .canvas--landscape {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+  }
+
+  .studio-canvas-container .canvas--portrait {
+    width: 75%;
+    height: auto;
+    aspect-ratio: 3 / 4;
+  }
+
+  .go-to-gallery-sideways {
+    display: none;
+  }
+
+  .go-to-gallery-inline {
+    display: inline;
+  }
+
+  .go-to-gallery-link {
+    position: fixed;
+    right: 1rem;
+    bottom: 2rem;
+    left: auto;
+    transform: none;
+    padding: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: black;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 4px;
   }
 }
 
