@@ -10,7 +10,7 @@
 .galleryEdgeTitle {
   position: fixed;
   left: 3.25rem;
-  top: 42%;
+  top: 50%;
   margin: 0;
   transform: rotate(-90deg);
   transform-origin: left center;
@@ -197,7 +197,8 @@
   right: 1.5rem;
   bottom: 2rem;
   z-index: 10;
-  max-width: min(22rem, 42vw);
+  width: max-content;
+  max-width: calc(100vw - 16rem);
   margin: 0;
   padding: 0.5rem;
   font-family: var(--font-space-mono), monospace;
@@ -218,6 +219,12 @@
 
 .continueHint[data-visible="true"] {
   visibility: visible;
+}
+
+@media (max-width: 771px) {
+  .continueHint {
+    display: none;
+  }
 }
 
 /* Mobile styles */
