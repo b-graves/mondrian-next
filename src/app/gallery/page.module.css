@@ -20,6 +20,12 @@
   white-space: nowrap;
   z-index: 4;
   pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.45s ease;
+}
+
+.galleryEdgeTitle[data-faded="true"] {
+  opacity: 0.2;
 }
 
 .galleryMain {

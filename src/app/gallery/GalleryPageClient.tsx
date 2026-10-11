@@ -29,6 +29,7 @@ export default function GalleryPageClient() {
   const loadMoreRef = useRef(loadMorePaintings);
   loadMoreRef.current = loadMorePaintings;
   const [showContinue, setShowContinue] = useState(false);
+  const [titleFaded, setTitleFaded] = useState(false);
 
   useLayoutEffect(() => {
     const track = trackRef.current;
@@ -51,6 +52,9 @@ export default function GalleryPageClient() {
       if (remaining < track.clientWidth * 1.25) {
         loadMoreRef.current();
       }
+
+      const faded = track.scrollLeft > 24;
+      setTitleFaded((current) => (current === faded ? current : faded));
 
       const hint = hintRef.current;
       if (!hint) {
@@ -115,7 +119,12 @@ export default function GalleryPageClient() {
 
   return (
     <div className={galleryStyles.galleryContainer}>
-      <h1 className={galleryStyles.galleryEdgeTitle}>Gallery</h1>
+      <h1
+        className={galleryStyles.galleryEdgeTitle}
+        data-faded={titleFaded ? "true" : "false"}
+      >
+        Gallery
+      </h1>
       <div className={galleryStyles.topBar}>
       <div className={galleryStyles.searchContainer}>
         <input
@@ -185,7 +194,7 @@ export default function GalleryPageClient() {
           data-visible={showContinue ? "true" : "false"}
           aria-hidden="true"
         >
-          Exhibition continues this way →
+          Exhibition continues this way → [scroll]
         </p>
       )}
     </div>
