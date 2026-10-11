@@ -1,13 +1,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  color-scheme: only light;
 }
 
 html,
@@ -15,6 +9,8 @@ body {
   max-width: 100vw;
   overflow-x: hidden;
   height: 100%;
+  background-color: #ffffff;
+  color-scheme: only light;
 }
 
 body {
@@ -36,10 +32,10 @@ a {
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+html.is-dragging-split,
+html.is-dragging-split body {
+  overflow: hidden !important;
+  overscroll-behavior: none !important;
 }
 
 .btn {

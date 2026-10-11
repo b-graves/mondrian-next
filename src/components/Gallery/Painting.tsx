@@ -16,8 +16,10 @@ const Painting: React.FC<PaintingProps> = ({ painting }) => {
       style={{
         textDecoration: "none",
         color: "inherit",
-        display: "block",
-        marginBottom: "4rem",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        flex: "0 0 auto",
       }}
     >
       <div
@@ -27,8 +29,10 @@ const Painting: React.FC<PaintingProps> = ({ painting }) => {
           alignItems: "center",
         }}
       >
-        <Canvas gallery={true} painting={painting.painting} />
-        <div style={{ textAlign: "center", marginTop: "1rem" }}>
+        <div className="canvas-stage">
+          <Canvas gallery={true} painting={painting.painting} />
+        </div>
+        <div className="painting-label">
           <div>{painting.details.artist}</div>
           <div>
             <em>{painting.details.title}</em>

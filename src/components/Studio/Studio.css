@@ -105,12 +105,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem 0;
+  /* Tallest studio canvas: square and portrait are 80vw in portrait
+     orientation, and 60vh in landscape orientation. */
+  height: 80vw;
+  flex-shrink: 0;
+}
+
+@media all and (orientation: landscape) {
+  .studio-canvas-container {
+    height: 60vh;
+  }
 }
 
 .studio-label-area {
   flex-shrink: 0;
-  padding: 1rem;
+  padding: 2.5rem 1rem 1rem;
   width: 100%;
   display: flex;
   justify-content: center;

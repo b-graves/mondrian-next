@@ -8,7 +8,9 @@
 .canvas {
   /* Positioning and Appearance */
   position: relative;
-  box-shadow: 0 4px 12px -6px rgba(0, 0, 0, 0.2);
+  box-shadow:
+    0 14px 32px rgba(0, 0, 0, 0.16),
+    0 4px 10px rgba(0, 0, 0, 0.08);
   display: flex; /* Use flex to allow the inner <Section> to fill it */
 
   /*
@@ -117,4 +119,18 @@
     width: 45vh;
     height: 60vh;
   }
+}
+
+/* Fixed slot so every shape shares a centre, and the label below it stays put. */
+.canvas-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--stage, auto);
+  flex: 0 0 auto;
+}
+
+.painting-label {
+  margin-top: 2.5rem;
+  text-align: center;
 }

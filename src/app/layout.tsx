@@ -20,8 +20,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" style={{ colorScheme: "only light" }}>
       <head>
+        <meta name="color-scheme" content="only light" />
+        <meta name="theme-color" content="#ffffff" />
         {/* Bootstrap CSS */}
         <link
           rel="stylesheet"

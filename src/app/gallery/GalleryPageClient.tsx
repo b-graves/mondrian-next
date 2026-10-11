@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useLayoutEffect, useState } from "react";
 import Gallery from "../../components/Gallery/Gallery";
 import { usePaintings } from "../../contexts/PaintingsContext";
 import Link from "next/link";
@@ -21,6 +21,58 @@ export default function GalleryPageClient() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const hintRef = useRef<HTMLParagraphElement>(null);
+  const studioRef = useRef<HTMLAnchorElement>(null);
+  const [showContinue, setShowContinue] = useState(false);
+
+  useLayoutEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+
+    const update = () => {
+      const first = track.querySelector("a");
+      const view = track.clientWidth;
+      if (first && view > 0) {
+        const card = first.getBoundingClientRect().width;
+        const peek = Math.min(48, Math.max(28, view * 0.03));
+        const lead = Math.max(0, (view - card) / 2);
+        const gap = Math.max(0, lead - peek);
+        track.style.setProperty("--lead", `${lead}px`);
+        track.style.setProperty("--gap", `${gap}px`);
+      }
+
+      const hint = hintRef.current;
+      if (!hint) {
+        setShowContinue(false);
+        return;
+      }
+
+      const moreToSee =
+        track.scrollWidth - track.clientWidth - track.scrollLeft > 24;
+      const hintRect = hint.getBoundingClientRect();
+      const studioRect = studioRef.current?.getBoundingClientRect();
+      const hitsStudio = !!studioRect && rectsOverlap(hintRect, studioRect, 12);
+      const hitsPainting = [...track.querySelectorAll("a")].some((painting) =>
+        rectsOverlap(hintRect, painting.getBoundingClientRect(), 8)
+      );
+      const next = moreToSee && !hitsStudio && !hitsPainting;
+      setShowContinue((current) => (current === next ? current : next));
+    };
+
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(track);
+    const firstPainting = track.querySelector("a");
+    if (firstPainting) observer.observe(firstPainting);
+    track.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      observer.disconnect();
+      track.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, [paintings, loading, hasMore]);
 
   // Sync the search input with the URL on load
   useEffect(() => {
@@ -80,38 +132,50 @@ export default function GalleryPageClient() {
         )}
       </div>
 
-      <main
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          paddingTop: "8rem",
-        }}
-      >
+      <main className={galleryStyles.galleryMain}>
         {loading && paintings.length === 0 ? (
-          <div>Loading...</div>
+          <div className={galleryStyles.galleryMessage}>Loading...</div>
+        ) : !loading && paintings.length === 0 && activeSearchTerm ? (
+          <div className={galleryStyles.galleryMessage}>
+            No results found for &quot;{activeSearchTerm}&quot;
+          </div>
         ) : (
-          <Gallery paintings={paintings} />
-        )}
-
-        {!loading && paintings.length === 0 && activeSearchTerm && (
-          <div>No results found for &quot;{activeSearchTerm}&quot;</div>
-        )}
-
-        {!loading && hasMore && paintings.length > 0 && (
-          <button
-            onClick={loadMorePaintings}
-            style={{ margin: "2rem auto", display: "block" }}
-          >
-            Load More...
-          </button>
+          <div ref={trackRef} className={galleryStyles.galleryTrack}>
+            <Gallery paintings={paintings} />
+            {!loading && hasMore && paintings.length > 0 && (
+              <button
+                onClick={loadMorePaintings}
+                className={galleryStyles.loadMore}
+              >
+                Load More...
+              </button>
+            )}
+          </div>
         )}
       </main>
 
-      <Link href="/" className={galleryStyles.studioLink}>
+      <Link ref={studioRef} href="/" className={galleryStyles.studioLink}>
         ← Go to studio
       </Link>
+      {paintings.length > 1 && (
+        <p
+          ref={hintRef}
+          className={galleryStyles.continueHint}
+          data-visible={showContinue ? "true" : "false"}
+          aria-hidden="true"
+        >
+          Exhibition continues this way →
+        </p>
+      )}
     </div>
+  );
+}
+
+function rectsOverlap(a: DOMRect, b: DOMRect, pad: number) {
+  return !(
+    a.right + pad <= b.left ||
+    a.left >= b.right + pad ||
+    a.bottom + pad <= b.top ||
+    a.top >= b.bottom + pad
   );
 }
