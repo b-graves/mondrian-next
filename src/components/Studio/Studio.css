@@ -72,6 +72,9 @@
   padding: 0.25rem 0.5rem;
   border-bottom: 1px solid var(--foreground);
   flex-shrink: 0;
+  position: relative;
+  z-index: 5;
+  background-color: var(--background);
 }
 
 .studio-workspace {
@@ -193,29 +196,49 @@
     display: none;
   }
 
+  .studio-work {
+    justify-content: safe center;
+    min-height: 0;
+    height: 100%;
+    container-type: size;
+  }
+
   .studio-workspace {
-    padding: 0.5rem 8px 4.5rem;
+    padding: 0.5rem 8px 2.75rem;
   }
 
   .studio-canvas-container {
+    flex: 0 1 auto;
+    min-height: 0;
     height: auto;
+    width: 100%;
+    max-height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
-  .studio-canvas-container .canvas--square {
-    width: 100%;
+  .studio-canvas-container .canvas--square,
+  .studio-canvas-container .canvas--landscape,
+  .studio-canvas-container .canvas--portrait {
     height: auto;
+    max-width: 100%;
+    max-height: none;
+  }
+
+  /* Leave room for the artist, title, and save controls under the canvas. */
+  .studio-canvas-container .canvas--square {
+    width: min(100%, calc(100cqh - 10.75rem));
     aspect-ratio: 1 / 1;
   }
 
   .studio-canvas-container .canvas--landscape {
-    width: 100%;
-    height: auto;
+    width: min(100%, calc((100cqh - 10.75rem) * 4 / 3));
     aspect-ratio: 4 / 3;
   }
 
   .studio-canvas-container .canvas--portrait {
-    width: 75%;
-    height: auto;
+    width: min(75%, calc((100cqh - 10.75rem) * 0.75));
     aspect-ratio: 3 / 4;
   }
 
@@ -229,8 +252,8 @@
 
   .go-to-gallery-link {
     position: fixed;
-    right: 1rem;
-    bottom: 2rem;
+    right: 0.75rem;
+    bottom: 0.4rem;
     left: auto;
     transform: none;
     padding: 0.5rem;
@@ -249,6 +272,12 @@
   width: 100%;
   display: flex;
   justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .studio-label-area {
+    padding: 1rem 0.5rem 0.25rem;
+  }
 }
 
 .details-form-main {
