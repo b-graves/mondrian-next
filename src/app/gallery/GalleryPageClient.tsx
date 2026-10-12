@@ -140,14 +140,31 @@ export default function GalleryPageClient() {
       </h1>
       <div className={galleryStyles.topBar}>
       <div className={galleryStyles.searchContainer}>
-        <input
-          ref={searchInputRef}
-          type="text"
-          placeholder="Search..."
-          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-          disabled={loading}
-          className={galleryStyles.searchInput}
-        />
+        <div
+          className={`${galleryStyles.searchField} ${
+            activeSearchTerm ? galleryStyles.searchFieldClearable : ""
+          }`}
+        >
+          <input
+            ref={searchInputRef}
+            type="text"
+            placeholder="Search..."
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+            disabled={loading}
+            className={galleryStyles.searchInput}
+          />
+          {activeSearchTerm && (
+            <button
+              type="button"
+              onClick={handleClearSearch}
+              disabled={loading}
+              className={galleryStyles.searchClear}
+              aria-label="Clear search"
+            >
+              ×
+            </button>
+          )}
+        </div>
         <button
           onClick={handleSearch}
           disabled={loading || searching}
@@ -156,15 +173,6 @@ export default function GalleryPageClient() {
         >
           {searching ? "Searching..." : "Search"}
         </button>
-        {activeSearchTerm && (
-          <button
-            onClick={handleClearSearch}
-            disabled={loading}
-            className={galleryStyles.searchButton}
-          >
-            Clear
-          </button>
-        )}
       </div>
       <div className={galleryStyles.orderGroup}>
         <Link href="/about" className={galleryStyles.aboutLink}>

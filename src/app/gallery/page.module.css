@@ -129,9 +129,22 @@
 .searchContainer {
   display: flex;
   gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: center;
+}
+
+.searchField {
+  position: relative;
+  flex: 1 1 12rem;
+  min-width: 0;
+  max-width: 240px;
 }
 
 .searchInput {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
   padding: 0.5rem 1rem;
   font-size: 1rem;
   border-radius: 4px;
@@ -139,7 +152,30 @@
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-space-mono), monospace;
-  width: 240px;
+}
+
+.searchFieldClearable .searchInput {
+  padding-right: 2rem;
+}
+
+.searchClear {
+  position: absolute;
+  top: 50%;
+  right: 0.35rem;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  color: var(--foreground);
+  font-family: var(--font-space-mono), monospace;
+  font-size: 1.15rem;
+  line-height: 1;
+  padding: 0.15rem 0.3rem;
+  cursor: pointer;
+}
+
+.searchClear:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .searchButton {
@@ -190,6 +226,7 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  flex-shrink: 0;
 }
 
 .aboutLink {
@@ -260,15 +297,22 @@
   }
 
   .searchContainer {
-    flex: 1;
+    flex: 1 1 0;
     min-width: 0;
   }
 
+  .searchField {
+    max-width: none;
+    flex: 1 1 0;
+  }
+
   .searchInput {
-    width: auto;
-    flex-grow: 1;
     font-size: 0.875rem;
     padding: 0.25rem 0.5rem;
+  }
+
+  .searchFieldClearable .searchInput {
+    padding-right: 1.6rem;
   }
 
   .orderSelect {
@@ -278,6 +322,7 @@
   }
 
   .searchButton {
+    flex-shrink: 0;
     font-size: 0.875rem;
     padding: 0.25rem 0.75rem;
   }
