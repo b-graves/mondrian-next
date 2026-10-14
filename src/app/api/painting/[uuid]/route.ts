@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchAllObjects, fetchFullPaintingData } from "./helpers";
 import { _Object as S3Object } from "@aws-sdk/client-s3";
+import { createdTime } from "../../../../services/paintingDate";
 
 export async function GET(
   request: NextRequest,
@@ -22,11 +23,9 @@ export async function GET(
       );
     }
 
-    const sortedObjects = [...allObjects].sort((a: S3Object, b: S3Object) => {
-      const dateA = a.LastModified ? new Date(a.LastModified) : new Date(0);
-      const dateB = b.LastModified ? new Date(b.LastModified) : new Date(0);
-      return dateA.getTime() - dateB.getTime();
-    });
+    const sortedObjects = [...allObjects].sort(
+      (a: S3Object, b: S3Object) => createdTime(a) - createdTime(b)
+    );
 
     const paintingIndex = sortedObjects.findIndex(
       (obj: S3Object) => obj.Key === matchingObject.Key

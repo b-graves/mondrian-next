@@ -7,6 +7,7 @@ import {
   _Object as S3Object,
 } from "@aws-sdk/client-s3";
 import { NextRequest, NextResponse } from "next/server";
+import { createdTime } from "../../../services/paintingDate";
 
 // Initialize S3 client with credentials from environment variables
 const s3Client = new S3Client({
@@ -69,9 +70,6 @@ function parseOrder(value: string | null): GalleryOrder {
   return "newest";
 }
 
-function modifiedTime(object: S3Object): number {
-  return object.LastModified ? new Date(object.LastModified).getTime() : 0;
-}
 
 function randomRank(seed: number, key: string): number {
   let hash = seed >>> 0;
@@ -89,7 +87,7 @@ function orderObjects(
 ): S3Object[] {
   const ordered = [...objects];
   if (order === "oldest") {
-    ordered.sort((a, b) => modifiedTime(a) - modifiedTime(b));
+    ordered.sort((a, b) => createdTime(a) - createdTime(b));
   } else if (order === "random") {
     ordered.sort((a, b) => {
       const rank =
@@ -98,7 +96,7 @@ function orderObjects(
       return (a.Key || "").localeCompare(b.Key || "");
     });
   } else {
-    ordered.sort((a, b) => modifiedTime(b) - modifiedTime(a));
+    ordered.sort((a, b) => createdTime(b) - createdTime(a));
   }
   return ordered;
 }
@@ -116,11 +114,7 @@ export async function GET(request: NextRequest) {
     if (key) {
       // First get all objects to determine the painting number
       const allObjects = await fetchAllObjects();
-      allObjects.sort((a, b) => {
-        const dateA = a.LastModified ? new Date(a.LastModified) : new Date(0);
-        const dateB = b.LastModified ? new Date(b.LastModified) : new Date(0);
-        return dateA.getTime() - dateB.getTime(); // Oldest first for numbering
-      });
+      allObjects.sort((a, b) => createdTime(a) - createdTime(b));
 
       const paintingIndex = allObjects.findIndex((obj) => obj.Key === key);
       if (paintingIndex === -1) {
@@ -148,12 +142,7 @@ export async function GET(request: NextRequest) {
     // If search is present, fetch all, filter, and paginate
     else if (search) {
       const allObjects = await fetchAllObjects();
-      // Sort by LastModified ascending (oldest first) for numbering
-      allObjects.sort((a, b) => {
-        const dateA = a.LastModified ? new Date(a.LastModified) : new Date(0);
-        const dateB = b.LastModified ? new Date(b.LastModified) : new Date(0);
-        return dateA.getTime() - dateB.getTime();
-      });
+      allObjects.sort((a, b) => createdTime(a) - createdTime(b));
 
       // Filter by searching artist/title in the filename (S3 key)
       const searchWords = search.split(/\s+/).filter(Boolean);
@@ -202,12 +191,7 @@ export async function GET(request: NextRequest) {
     // Otherwise, fetch all objects, sort, and paginate
     else {
       const allObjects = await fetchAllObjects();
-      // Sort by LastModified ascending (oldest first) for numbering
-      allObjects.sort((a, b) => {
-        const dateA = a.LastModified ? new Date(a.LastModified) : new Date(0);
-        const dateB = b.LastModified ? new Date(b.LastModified) : new Date(0);
-        return dateA.getTime() - dateB.getTime();
-      });
+      allObjects.sort((a, b) => createdTime(a) - createdTime(b));
 
       // Sort for display
       const displayObjects = orderObjects(allObjects, order, seed);
