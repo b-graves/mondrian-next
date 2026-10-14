@@ -31,6 +31,7 @@ export default function GalleryPageClient() {
   const [showContinue, setShowContinue] = useState(false);
   const [titleFaded, setTitleFaded] = useState(false);
   const [searching, setSearching] = useState(false);
+  const [sorting, setSorting] = useState(false);
 
   const resetScroll = () => {
     if (trackRef.current) trackRef.current.scrollLeft = 0;
@@ -55,7 +56,7 @@ export default function GalleryPageClient() {
 
       const remaining =
         track.scrollWidth - track.clientWidth - track.scrollLeft;
-      if (!searching && remaining < track.clientWidth * 1.25) {
+      if (!searching && !sorting && remaining < track.clientWidth * 1.25) {
         loadMoreRef.current();
       }
 
@@ -90,14 +91,17 @@ export default function GalleryPageClient() {
       track.removeEventListener("scroll", update);
       window.removeEventListener("resize", update);
     };
-  }, [paintings, loading, hasMore, searching]);
+  }, [paintings, loading, hasMore, searching, sorting]);
 
   useEffect(() => {
     resetScroll();
   }, [order, activeSearchTerm]);
 
   useEffect(() => {
-    if (!loading) setSearching(false);
+    if (!loading) {
+      setSearching(false);
+      setSorting(false);
+    }
   }, [loading]);
   useEffect(() => {
     const term = searchParams.get("search") || "";
@@ -182,8 +186,13 @@ export default function GalleryPageClient() {
           className={galleryStyles.orderSelect}
           value={order}
           aria-label="Order"
-          onChange={(event) => setOrder(event.target.value as GalleryOrder)}
-          disabled={loading && paintings.length === 0}
+          onChange={(event) => {
+            setSorting(true);
+            resetScroll();
+            setOrder(event.target.value as GalleryOrder);
+          }}
+          disabled={(loading && paintings.length === 0) || sorting}
+          aria-busy={sorting}
         >
           <option value="newest">Newest</option>
           <option value="oldest">Oldest</option>
@@ -193,14 +202,14 @@ export default function GalleryPageClient() {
       </div>
 
       <main className={galleryStyles.galleryMain}>
-        {searching ? (
+        {searching || sorting ? (
           <div ref={trackRef} className={galleryStyles.galleryTrack}>
             <div
               className={galleryStyles.searchingSlot}
               role="status"
               aria-live="polite"
             >
-              Searching...
+              {searching ? "Searching..." : "Loading..."}
             </div>
           </div>
         ) : loading && paintings.length === 0 ? (
@@ -219,7 +228,7 @@ export default function GalleryPageClient() {
       <Link ref={studioRef} href="/" className={galleryStyles.studioLink}>
         ← Go to studio
       </Link>
-      {paintings.length > 1 && !searching && (
+      {paintings.length > 1 && !searching && !sorting && (
         <p
           ref={hintRef}
           className={galleryStyles.continueHint}
